@@ -1,5 +1,5 @@
 export const APP_NAME = 'WhereSpoken';
-export const FIRST_RIDDLE_DATE_ISO = '2026-01-11';
+export const FIRST_RIDDLE_DATE_ISO = '2026-01-12';
 
 /**
  * Get the riddle index (1-based) for a given date
