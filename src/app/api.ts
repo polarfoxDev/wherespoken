@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Schedule } from './types/schedule';
 import { environment } from '../environments/environment.development';
+import { ExtendedSampleMetadata, SampleMetadata } from './types/sampleMetadata';
 
 @Injectable({
   providedIn: 'root',
