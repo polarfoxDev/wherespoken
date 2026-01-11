@@ -33,19 +33,34 @@ export class Riddle {
   isCorrect = signal(false);
   isPerfectMatch = signal(false);
   showDropdown = signal(false);
+  restrictToBase = signal<string | null>(null);
+  guessedCodes = signal<string[]>([]);
 
   // Mapped options
   localeOptions = computed(() => {
     const dn = new Intl.DisplayNames(['en'], { type: 'language' });
-    return LOCALE_CODES.map((code) => {
-      let label = code;
+    const restriction = this.restrictToBase();
+    const guesses = this.guessedCodes();
+
+    return LOCALE_CODES.filter((code) => {
+      if (guesses.includes(code)) return false;
+      if (!restriction) return true;
       try {
-        label = dn.of(code) || code;
-      } catch (e) {
-        // Fallback if code is invalid
+        return new Intl.Locale(code).language === restriction;
+      } catch {
+        return false;
       }
-      return { code, label };
-    }).sort((a, b) => a.label.localeCompare(b.label));
+    })
+      .map((code) => {
+        let label = code;
+        try {
+          label = dn.of(code) || code;
+        } catch (e) {
+          // Fallback if code is invalid
+        }
+        return { code, label };
+      })
+      .sort((a, b) => a.label.localeCompare(b.label));
   });
 
   filteredLanguages = computed(() => {
@@ -80,15 +95,15 @@ export class Riddle {
     if (!guess) return;
 
     // Try to find matching option
-    const matchedOption = this.localeOptions().find(o => o.label.toLowerCase() === guess);
+    const matchedOption = this.localeOptions().find((o) => o.label.toLowerCase() === guess);
 
     if (!matchedOption) return;
 
     const sampleCode = this.sample().language;
     let sampleBase = sampleCode;
     try {
-        sampleBase = new Intl.Locale(sampleCode).language;
-    } catch (e) { }
+      sampleBase = new Intl.Locale(sampleCode).language;
+    } catch (e) {}
 
     let isBaseMatch = false;
     let isExactMatch = false;
@@ -112,10 +127,14 @@ export class Riddle {
       this.isCorrect.set(true);
       this.stage.set(5);
     } else if (isBaseMatch) {
-      this.isPerfectMatch.set(false);
-      this.isCorrect.set(true);
-      this.stage.set(5);
+      // Wrong region, but correct base language.
+      // Count as wrong, but restrict options.
+      this.restrictToBase.set(sampleBase);
+      this.guessedCodes.update((c) => [...c, guessedCode]);
+      this.guessControl.setValue('');
+      this.nextHint();
     } else {
+      this.guessedCodes.update((c) => [...c, guessedCode]);
       this.guessControl.setValue('');
       this.nextHint();
     }
@@ -126,7 +145,7 @@ export class Riddle {
     this.stage.update((s) => Math.min(s + 1, 5));
   }
 
-  selectLanguage(option: { code: string, label: string }) {
+  selectLanguage(option: { code: string; label: string }) {
     this.guessControl.setValue(option.label);
     this.showDropdown.set(false);
     this.submitGuess();
