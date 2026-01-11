@@ -1,13 +1,19 @@
 <div class="max-w-xl mx-auto p-4 pb-20">
+  <!-- Header card like strangui -->
+  <div class="rounded-2xl overflow-hidden border-2 border-guess mb-5">
+    <div class="bg-guess py-2 px-4 text-center">
+      <span class="text-xs font-bold uppercase tracking-widest text-text-inverse/90"
+        >Guess the Language</span
+      >
+    </div>
+    <div class="p-4 text-center">
+      <p class="m-0 text-lg font-medium">Listen and identify the language spoken</p>
+    </div>
+  </div>
+
   <div
     class="rounded-2xl shadow-lg border border-black/5 dark:border-white/10 bg-white dark:bg-white/5"
   >
-    <!-- Header -->
-    <div class="card-header p-6 text-text-inverse">
-      <h2 class="m-0 text-xl font-semibold">Guess the Language</h2>
-      <p class="mt-1 opacity-85 text-sm">Listen carefully and identify the language spoken.</p>
-    </div>
-
     <div class="p-6 flex flex-col gap-5">
       <!-- Stage 0: Audio -->
       <div class="p-4 rounded-xl bg-black/3 dark:bg-white/5">
@@ -123,11 +129,64 @@
         </span>
         <span>{{ feedbackMessage()?.text }}</span>
       </div>
+      } @if (stage() >= 1) {
+      <h2 class="block font-medium mb-3">Hints:</h2>
+      }
+
+      <!-- Stage 5: Hint Translation -->
+      @if (stage() >= 5 && sample().hintEnglishTranslation) {
+      <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
+        <label
+          class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
+          >Hint Transcript Translation</label
+        >
+        <p class="p-4 rounded-xl m-0 bg-accent/10 text-accent dark:text-accent-bright">
+          "{{ sample().hintEnglishTranslation }}"
+        </p>
+      </div>
+      }
+
+      <!-- Stage 4: Text Hint -->
+      @if (stage() >= 4) {
+      <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
+        <label
+          class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
+          >Hint Transcript</label
+        >
+        <p
+          class="p-5 rounded-xl border-l-4 border-solution bg-white dark:bg-white/5 leading-relaxed"
+        >
+          {{ sample().hint }}
+        </p>
+      </div>
+      }
+
+      <!-- Stage 3: Audio Hint -->
+      @if (stage() >= 3) {
+      <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
+        <label
+          class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
+          >Hint</label
+        >
+        <audio controls [src]="sample().audioHintUrl" class="w-full rounded-lg"></audio>
+      </div>
+      }
+
+      <!-- Stage 2: Translation -->
+      @if (stage() >= 2) {
+      <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
+        <label
+          class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
+          >Transcript Translation</label
+        >
+        <div class="p-4 rounded-xl m-0 bg-accent/10 text-accent dark:text-accent-bright">
+          "{{ sample().englishTranslation }}"
+        </div>
+      </div>
       }
 
       <!-- Stage 1: Text -->
       @if (stage() >= 1) {
-      <h2 class="block font-medium mb-3">Hints:</h2>
       <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
         <label
           class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
@@ -137,56 +196,6 @@
           class="p-5 rounded-xl border-l-4 border-solution bg-white dark:bg-white/5 text-lg leading-relaxed"
           [innerHTML]="highlightedText()"
         ></div>
-      </div>
-      }
-
-      <!-- Stage 2: Translation -->
-      @if (stage() >= 2) {
-      <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
-        <label
-          class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
-          >Translation</label
-        >
-        <div class="italic text-base text-text/70 dark:text-text-inverse/70">
-          "{{ sample().englishTranslation }}"
-        </div>
-      </div>
-      }
-
-      <!-- Stage 3: Audio Hint -->
-      @if (stage() >= 3) {
-      <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
-        <label
-          class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
-          >Audio Hint</label
-        >
-        <audio controls [src]="sample().audioHintUrl" class="w-full rounded-lg"></audio>
-      </div>
-      }
-
-      <!-- Stage 4: Text Hint -->
-      @if (stage() >= 4) {
-      <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
-        <label
-          class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
-          >Hint</label
-        >
-        <p class="p-4 rounded-xl m-0 bg-accent/10 text-accent dark:text-accent-bright">
-          {{ sample().hint }}
-        </p>
-      </div>
-      }
-
-      <!-- Stage 5: Hint Translation -->
-      @if (stage() >= 5 && sample().hintEnglishTranslation) {
-      <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
-        <label
-          class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
-          >Hint Translation</label
-        >
-        <p class="italic text-base m-0 text-text/70 dark:text-text-inverse/70">
-          {{ sample().hintEnglishTranslation }}
-        </p>
       </div>
       }
     </div>
