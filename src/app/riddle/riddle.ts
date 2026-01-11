@@ -7,6 +7,9 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { map, startWith } from 'rxjs';
 
+export type GameStatus = 'PLAYING' | 'WON' | 'LOST';
+export type GuessResult = 'WRONG' | 'BASE_MATCH' | 'CORRECT' | 'LOST';
+
 @Component({
   selector: 'app-riddle',
   standalone: true,
@@ -30,11 +33,30 @@ export class Riddle {
   );
 
   stage = signal(0); // 0: Audio, 1: Text, 2: Trans, 3: HintAudio, 4: HintText, 5: HintTrans
-  isCorrect = signal(false);
-  isPerfectMatch = signal(false);
+  gameStatus = signal<GameStatus>('PLAYING');
   showDropdown = signal(false);
   restrictToBase = signal<string | null>(null);
   guessedCodes = signal<string[]>([]);
+  history = signal<GuessResult[]>([]);
+  feedbackMessage = signal<{ type: 'error' | 'warning'; text: string } | null>(null);
+
+  // Computeds
+  historyEmojis = computed(() => {
+    return this.history().map((h) => {
+      switch (h) {
+        case 'WRONG':
+          return '⚫';
+        case 'BASE_MATCH':
+          return '🟠';
+        case 'CORRECT':
+          return '🟢🎉';
+        case 'LOST':
+          return '❌';
+        default:
+          return '';
+      }
+    });
+  });
 
   // Mapped options
   localeOptions = computed(() => {
@@ -67,7 +89,9 @@ export class Riddle {
     const guess = this.guessValue().toLowerCase();
     const options = this.localeOptions();
     if (!guess) return options;
-    return options.filter((o) => o.label.toLowerCase().includes(guess));
+    return options.filter(
+      (o) => o.label.toLowerCase().includes(guess) || o.code.toLowerCase().includes(guess)
+    );
   });
 
   displayLanguage = computed(() => {
@@ -122,21 +146,44 @@ export class Riddle {
       isBaseMatch = true;
     }
 
+    // Check for Game Over condition BEFORE processing current guess logic
+    // Actually, we process current guess. If wrong and stage is 5, then LOST.
+
     if (isExactMatch) {
-      this.isPerfectMatch.set(true);
-      this.isCorrect.set(true);
+      this.gameStatus.set('WON');
+      this.history.update((h) => [...h, 'CORRECT']);
+      this.feedbackMessage.set(null);
       this.stage.set(5);
     } else if (isBaseMatch) {
-      // Wrong region, but correct base language.
-      // Count as wrong, but restrict options.
-      this.restrictToBase.set(sampleBase);
-      this.guessedCodes.update((c) => [...c, guessedCode]);
-      this.guessControl.setValue('');
-      this.nextHint();
+      if (this.stage() === 5) {
+        this.gameStatus.set('LOST');
+        this.history.update((h) => [...h, 'LOST']);
+        this.feedbackMessage.set(null);
+      } else {
+        // Wrong region, but correct base language.
+        // Count as wrong, but restrict options.
+        this.restrictToBase.set(sampleBase);
+        this.guessedCodes.update((c) => [...c, guessedCode]);
+        this.history.update((h) => [...h, 'BASE_MATCH']);
+        this.feedbackMessage.set({
+          type: 'warning',
+          text: 'Close! Correct language, wrong region.',
+        });
+        this.guessControl.setValue('');
+        this.nextHint();
+      }
     } else {
-      this.guessedCodes.update((c) => [...c, guessedCode]);
-      this.guessControl.setValue('');
-      this.nextHint();
+      if (this.stage() === 5) {
+        this.gameStatus.set('LOST');
+        this.history.update((h) => [...h, 'LOST']);
+        this.feedbackMessage.set(null);
+      } else {
+        this.guessedCodes.update((c) => [...c, guessedCode]);
+        this.history.update((h) => [...h, 'WRONG']);
+        this.feedbackMessage.set({ type: 'error', text: 'Incorrect guess.' });
+        this.guessControl.setValue('');
+        this.nextHint();
+      }
     }
     this.showDropdown.set(false);
   }
