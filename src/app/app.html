@@ -3,21 +3,21 @@
 >
   <header class="flex justify-center items-center p-4">
     <a
-      class="flex items-center justify-center gap-1 p-1 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+      class="group flex items-center justify-center gap-1 p-1 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/10"
       [href]="gameOverviewUrl"
       aria-label="Game overview"
       title="Game overview"
     >
       <img
-        class="w-6 h-6 object-contain -translate-y-[1px]"
+        class="w-6 h-6 object-contain -translate-y-px"
         src="https://polarnight.eu/assets/images/logo.png"
         alt="polarnight.eu logo"
       />
       <span
-        class="w-1.5 h-1.5 border-l-2 border-b-2 border-guess dark:border-guess-bright rotate-45 -mr-0.5"
+        class="w-2 h-2 border-r-2 border-b-2 border-guess dark:border-guess-bright -rotate-45 -mr-0.5 transition-colors group-hover:border-solution"
       ></span>
     </a>
-    <h1 class="m-0 ml-1 mr-3 text-xl font-semibold">{{ APP_NAME }}</h1>
+    <h1 class="m-0 ml-2 mr-3 text-xl font-semibold">{{ APP_NAME }}</h1>
     <a class="info-button" routerLink="/history" aria-label="History">📅</a>
   </header>
 
