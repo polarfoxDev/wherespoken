@@ -1,59 +1,96 @@
-# Wherespoken
+# 🗣️ WhereSpoken
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.5.
+A daily language guessing game where players listen to audio samples and try to identify the language or dialect being spoken. Similar to Wordle, but for language recognition!
 
-## Development server
+## 🎮 How It Works
 
-To start a local development server, run:
+1. **Listen** to an audio sample of someone speaking
+2. **Guess** the language from a dropdown of options
+3. **Get hints** if you're wrong — text transcripts, translations, and more audio
+4. **Win or lose** within 6 attempts
+
+Each day features a new puzzle. Players can also browse the history to play past puzzles.
+
+## 🏗️ Architecture
+
+### Tech Stack
+
+- **Framework**: Angular 21 with standalone components
+- **State Management**: Angular Signals
+- **Styling**: Tailwind CSS v4
+- **Testing**: Vitest
+- **Package Manager**: pnpm
+
+### Project Structure
+
+```
+src/
+├── app/
+│   ├── api.ts                 # API service for fetching puzzles
+│   ├── app.ts                 # Root component
+│   ├── consts.ts              # App constants (name, first riddle date)
+│   ├── game-state.service.ts  # LocalStorage persistence for game state
+│   ├── calendar/              # Date picker for history
+│   ├── game/                  # Game container component
+│   ├── history/               # History page with calendar
+│   ├── riddle/                # Core game logic and UI
+│   ├── spinner/               # Loading spinner
+│   └── types/                 # TypeScript interfaces
+├── environments/              # Environment configs (dev/prod)
+└── styles.css                 # Global styles
+```
+
+### Data Flow
+
+1. **Schedule** is fetched from S3 (`schedule.json`) — maps dates to sample IDs
+2. **Sample metadata** is fetched per puzzle (`{sampleId}/metadata.json`)
+3. **Audio files** are served from S3 (`sample.mp3`, `hint.mp3`)
+4. **Game state** is persisted to localStorage per date
+
+## 🚀 Development
+
+### Prerequisites
+
+- Node.js 20+
+- pnpm 10+
+
+### Setup
 
 ```bash
+pnpm install
+```
+
+### Development Server
+
+```bash
+pnpm start
+# or
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Navigate to `http://localhost:4200/`. The app auto-reloads on file changes.
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### Testing
 
 ```bash
-ng generate component component-name
+pnpm test
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### Building
 
 ```bash
-ng generate --help
+pnpm build
 ```
 
-## Building
+Build artifacts are stored in `dist/`.
 
-To build the project run:
+## 🌐 Deployment
 
-```bash
-ng build
-```
+The app is containerized and deployed via GitHub Actions. On push to `main`:
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+1. Docker images are built and tagged with version from `package.json`
+2. Images are pushed to GitHub Container Registry (ghcr.io)
 
-## Running unit tests
+## 📝 License
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Private project by [polarnight.eu](https://polarnight.eu)

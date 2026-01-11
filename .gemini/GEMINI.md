@@ -1,3 +1,33 @@
+# WhereSpoken - Gemini Instructions
+
+## Project Overview
+
+WhereSpoken is a daily language guessing game (like Wordle, but for languages). Players listen to audio samples and guess the language/dialect being spoken. Each day has a new puzzle, and players get up to 6 attempts with progressive hints.
+
+### Core Game Flow
+
+1. Player hears an audio sample
+2. Player selects a language from a searchable dropdown
+3. If wrong: show next hint (text → translation → hint audio → hint text → hint translation)
+4. Win on exact match, lose after 6 wrong guesses
+5. Game state is persisted to localStorage per date
+
+### Key Files
+
+- `src/app/riddle/riddle.ts` - Core game logic and UI
+- `src/app/game/game.ts` - Game container, loads puzzles from API
+- `src/app/game-state.service.ts` - LocalStorage persistence
+- `src/app/api.ts` - Fetches schedule and sample metadata from S3
+- `src/app/calendar/` - Date picker for playing past puzzles
+- `src/app/consts.ts` - App name, first riddle date
+
+### Data Sources
+
+- Schedule: `{s3Endpoint}/schedule.json` - maps ISO dates to sample IDs
+- Metadata: `{s3Endpoint}/{sampleId}/metadata.json` - language, text, translation
+- Audio: `{s3Endpoint}/{sampleId}/sample.mp3` and `hint.mp3`
+
+---
 
 You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
 

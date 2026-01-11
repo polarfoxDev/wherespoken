@@ -12,6 +12,6 @@ import { environment } from '../environments/environment';
 })
 export class App {
   readonly APP_NAME = APP_NAME;
-  readonly version = '1.0.0';
+  readonly version = environment.version;
   readonly gameOverviewUrl = environment.gameOverviewUrl;
 }
