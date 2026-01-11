@@ -27,7 +27,6 @@ export class CalendarDateComponent {
 
   buttonClasses = computed(() => {
     const status = this.date().gameStatus;
-    const isToday = this.date().isToday;
 
     let classes = '';
 
@@ -45,10 +44,6 @@ export class CalendarDateComponent {
         classes =
           'bg-surface dark:bg-surface-dark text-guess-brightest dark:text-guess-dark cursor-not-allowed';
         break;
-    }
-
-    if (isToday) {
-      classes += ' ring-2 ring-solution';
     }
 
     return classes;

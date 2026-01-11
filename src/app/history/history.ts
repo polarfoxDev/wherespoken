@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CalendarComponent } from '../calendar/calendar';
 import { FIRST_RIDDLE_DATE_ISO } from '../consts';
+import { GameState } from '../game-state';
 
 @Component({
   selector: 'app-history',
@@ -20,7 +21,10 @@ import { FIRST_RIDDLE_DATE_ISO } from '../consts';
         {{ minDateString }} – {{ todayDateString }}
       </p>
 
-      <app-calendar (dateSelected)="onDateSelected($event)"></app-calendar>
+      <app-calendar
+        [availableDates]="gameStateService.getAllDateStates()"
+        (dateSelected)="onDateSelected($event)"
+      ></app-calendar>
 
       <div class="flex justify-center items-center flex-col gap-2.5">
         <div class="flex justify-center items-center gap-2 text-sm">
@@ -49,6 +53,7 @@ import { FIRST_RIDDLE_DATE_ISO } from '../consts';
 export class HistoryComponent {
   private datePipe = inject(DatePipe);
   private router = inject(Router);
+  readonly gameStateService = inject(GameState);
 
   readonly minDateString = this.datePipe.transform(new Date(FIRST_RIDDLE_DATE_ISO), 'mediumDate');
   readonly todayDateString = this.datePipe.transform(new Date(), 'mediumDate');

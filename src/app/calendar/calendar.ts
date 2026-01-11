@@ -1,5 +1,14 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  untracked,
+} from '@angular/core';
 import { CalendarDateComponent } from './calendar-date/calendar-date';
 import { CalendarDate, CalendarMonth, GameStatus } from './calendar.models';
 import { FIRST_RIDDLE_DATE_ISO } from '../consts';
@@ -61,6 +70,16 @@ export class CalendarComponent {
   })();
 
   activeMonth = signal<CalendarMonth>(this.createMonth(new Date()));
+
+  constructor() {
+    effect(() => {
+      this.availableDates();
+      untracked(() => {
+        const current = this.activeMonth().dates[0]?.date ?? new Date();
+        this.activeMonth.set(this.createMonth(current));
+      });
+    });
+  }
 
   private createMonth(date: Date): CalendarMonth {
     const start = new Date(date.getFullYear(), date.getMonth(), 1);

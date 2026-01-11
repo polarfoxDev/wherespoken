@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+  untracked,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ExtendedSampleMetadata } from '../types/sampleMetadata';
@@ -8,6 +17,7 @@ import { CommonModule } from '@angular/common';
 import { map, startWith } from 'rxjs';
 import { getTodayRiddleIndex } from '../consts';
 import { environment } from '../../environments/environment';
+import { GameState } from '../game-state';
 
 export type GameStatus = 'PLAYING' | 'WON' | 'LOST';
 export type GuessResult = 'WRONG' | 'BASE_MATCH' | 'CORRECT' | 'LOST';
@@ -21,8 +31,10 @@ export type GuessResult = 'WRONG' | 'BASE_MATCH' | 'CORRECT' | 'LOST';
 })
 export class Riddle {
   private sanitizer = inject(DomSanitizer);
+  private gameStateService = inject(GameState);
 
   sample = input.required<ExtendedSampleMetadata>();
+  date = input<string>();
 
   // Game state
   guessControl = new FormControl('');
@@ -42,7 +54,52 @@ export class Riddle {
   history = signal<GuessResult[]>([]);
   feedbackMessage = signal<{ type: 'error' | 'warning'; text: string } | null>(null);
 
-  // Computeds
+  constructor() {
+    // Load saved state when date changes
+    effect(() => {
+      const dateISO = this.date() ?? new Date().toISOString().slice(0, 10);
+      const savedState = untracked(() => this.gameStateService.getState(dateISO));
+      if (savedState) {
+        this.stage.set(savedState.stage);
+        this.gameStatus.set(savedState.gameStatus);
+        this.guessedCodes.set(savedState.guessedCodes);
+        this.history.set(savedState.history);
+        this.restrictToBase.set(savedState.restrictToBase);
+      } else {
+        // Reset state for new game
+        this.stage.set(0);
+        this.gameStatus.set('PLAYING');
+        this.guessedCodes.set([]);
+        this.history.set([]);
+        this.restrictToBase.set(null);
+      }
+      this.feedbackMessage.set(null);
+      this.guessControl.setValue('');
+    });
+
+    // Save state whenever it changes
+    effect(() => {
+      const stage = this.stage();
+      const gameStatus = this.gameStatus();
+      const guessedCodes = this.guessedCodes();
+      const history = this.history();
+      const restrictToBase = this.restrictToBase();
+      const dateISO = untracked(() => this.date()) ?? new Date().toISOString().slice(0, 10);
+
+      // Only save if game has started (has history or advanced stage)
+      if (history.length > 0 || stage > 0) {
+        this.gameStateService.saveState(dateISO, {
+          stage,
+          gameStatus,
+          guessedCodes,
+          history,
+          restrictToBase,
+        });
+      }
+    });
+  }
+
+  // Computed signals
   historyEmojis = computed(() => {
     return this.history().map((h) => {
       switch (h) {
@@ -108,7 +165,15 @@ export class Riddle {
 
   highlightedText = computed((): SafeHtml => {
     const text = this.sample().text;
-    // Highlight non-English alphabet characters
+
+    // Check if text contains Latin letters - if not, it's a completely different script
+    const hasLatinLetters = /[a-zA-Z]/.test(text);
+    if (!hasLatinLetters) {
+      // Don't highlight for non-Latin scripts (Arabic, Chinese, etc.)
+      return this.sanitizer.bypassSecurityTrustHtml(text);
+    }
+
+    // Highlight non-English alphabet characters for Latin-based scripts with special chars
     // [a-zA-Z] + common punctuation + whitespace allowed, wrap others
     const content = text.replace(/[^a-zA-Z0-9\s.,!?'"():;\-\–]/g, (match) => {
       return `<span class="bg-solution-brightest dark:bg-solution font-bold px-0.5 rounded">${match}</span>`;
