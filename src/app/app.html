@@ -1,1 +1,26 @@
-<router-outlet />
+<div class="app">
+  <header class="header">
+    <a class="logo-button" [href]="gameOverviewUrl" target="_blank" aria-label="polarnight.eu games">
+      <img src="https://polarnight.eu/assets/images/logo.png" alt="polarnight.eu logo" />
+    </a>
+    <h1 class="title">{{ APP_NAME }}</h1>
+    <a class="info-button" routerLink="/history" aria-label="History">📅</a>
+  </header>
+
+  <main class="content">
+    <router-outlet />
+  </main>
+
+  <footer class="footer">
+    <p class="version-info">
+      <span>{{ APP_NAME }}</span>
+      <span class="version">v{{ version }}</span>
+    </p>
+    <p>
+      <a target="_blank" href="https://r.polarnight.eu/impressum">Imprint</a>
+    </p>
+    <p>
+      <a target="_blank" href="https://r.polarnight.eu/datenschutz">Privacy</a>
+    </p>
+  </footer>
+</div>

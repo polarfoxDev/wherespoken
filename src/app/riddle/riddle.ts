@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ExtendedSampleMetadata } from '../types/sampleMetadata';
@@ -12,10 +12,10 @@ export type GuessResult = 'WRONG' | 'BASE_MATCH' | 'CORRECT' | 'LOST';
 
 @Component({
   selector: 'app-riddle',
-  standalone: true,
   imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './riddle.html',
   styleUrl: './riddle.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Riddle {
   private sanitizer = inject(DomSanitizer);
