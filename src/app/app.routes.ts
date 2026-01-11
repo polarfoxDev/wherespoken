@@ -6,4 +6,8 @@ export const routes: Routes = [
     path: '',
     component: Game,
   },
+  {
+    path: 'history/:date',
+    component: Game,
+  },
 ];

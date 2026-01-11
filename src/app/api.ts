@@ -21,6 +21,7 @@ export class Api {
   }
 
   loadSample(sampleId: string): void {
+    console.log(`Loading sample ${sampleId}...`);
     this.http
       .get<SampleMetadata>(environment.s3Endpoint + `${sampleId}/metadata.json`)
       .subscribe((data) => {

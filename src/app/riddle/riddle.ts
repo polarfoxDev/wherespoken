@@ -108,8 +108,8 @@ export class Riddle {
     const text = this.sample().text;
     // Highlight non-English alphabet characters
     // [a-zA-Z] + common punctuation + whitespace allowed, wrap others
-    const content = text.replace(/[^a-zA-Z0-9\s.,!?'"():;\-]/g, (match) => {
-      return `<span class="bg-red-200 text-red-800 font-bold px-0.5 rounded">${match}</span>`;
+    const content = text.replace(/[^a-zA-Z0-9\s.,!?'"():;\-\–]/g, (match) => {
+      return `<span class="bg-blue-200 font-bold px-0.5 rounded">${match}</span>`;
     });
     return this.sanitizer.bypassSecurityTrustHtml(content);
   });
