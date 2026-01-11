@@ -1,96 +1,134 @@
-<div class="riddle">
-  <div class="card">
+<div class="max-w-xl mx-auto p-4">
+  <div
+    class="rounded-2xl overflow-hidden shadow-lg border border-black/5 dark:border-white/10 bg-white dark:bg-white/5"
+  >
     <!-- Header -->
-    <div class="card-header">
-      <h2>Guess the Language</h2>
-      <p>Listen carefully and identify the language spoken.</p>
+    <div class="card-header p-6 text-text-inverse">
+      <h2 class="m-0 text-xl font-semibold">Guess the Language</h2>
+      <p class="mt-1 opacity-85 text-sm">Listen carefully and identify the language spoken.</p>
     </div>
 
-    <div class="card-body">
+    <div class="p-6 flex flex-col gap-5">
       <!-- Stage 0: Audio -->
-      <div class="section">
-        <label class="section-label">Audio Sample</label>
-        <audio controls [src]="sample().audioUrl"></audio>
+      <div class="p-4 rounded-xl bg-black/3 dark:bg-white/5">
+        <label
+          class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
+          >Audio Sample</label
+        >
+        <audio controls [src]="sample().audioUrl" class="w-full rounded-lg"></audio>
       </div>
 
       <!-- Stage 1: Text -->
       @if (stage() >= 1) {
-      <div class="section animate-in">
-        <label class="section-label">Transcript</label>
-        <div class="transcript" [innerHTML]="highlightedText()"></div>
+      <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
+        <label
+          class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
+          >Transcript</label
+        >
+        <div
+          class="p-5 rounded-xl border-l-4 border-solution bg-white dark:bg-white/5 text-lg leading-relaxed"
+          [innerHTML]="highlightedText()"
+        ></div>
       </div>
       }
 
       <!-- Stage 2: Translation -->
       @if (stage() >= 2) {
-      <div class="section animate-in">
-        <label class="section-label">Translation</label>
-        <div class="translation">"{{ sample().englishTranslation }}"</div>
+      <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
+        <label
+          class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
+          >Translation</label
+        >
+        <div class="italic text-base text-text/70 dark:text-text-inverse/70">
+          "{{ sample().englishTranslation }}"
+        </div>
       </div>
       }
 
       <!-- Stage 3: Audio Hint -->
       @if (stage() >= 3) {
-      <div class="section animate-in">
-        <label class="section-label">Audio Hint</label>
-        <audio controls [src]="sample().audioHintUrl"></audio>
+      <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
+        <label
+          class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
+          >Audio Hint</label
+        >
+        <audio controls [src]="sample().audioHintUrl" class="w-full rounded-lg"></audio>
       </div>
       }
 
       <!-- Stage 4: Text Hint -->
       @if (stage() >= 4) {
-      <div class="section animate-in">
-        <label class="section-label">Hint</label>
-        <p class="hint-text">{{ sample().hint }}</p>
+      <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
+        <label
+          class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
+          >Hint</label
+        >
+        <p class="p-4 rounded-xl m-0 bg-accent/10 text-accent dark:text-accent-bright">
+          {{ sample().hint }}
+        </p>
       </div>
       }
 
       <!-- Stage 5: Hint Translation -->
       @if (stage() >= 5 && sample().hintEnglishTranslation) {
-      <div class="section animate-in">
-        <label class="section-label">Hint Translation</label>
-        <p class="translation">{{ sample().hintEnglishTranslation }}</p>
+      <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
+        <label
+          class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
+          >Hint Translation</label
+        >
+        <p class="italic text-base m-0 text-text/70 dark:text-text-inverse/70">
+          {{ sample().hintEnglishTranslation }}
+        </p>
       </div>
       }
 
       <!-- Feedback Message -->
       @if (feedbackMessage()) {
       <div
-        class="feedback animate-in"
-        [class.error]="feedbackMessage()?.type === 'error'"
-        [class.warning]="feedbackMessage()?.type === 'warning'"
+        class="animate-in flex items-center gap-3 p-4 rounded-xl text-sm font-medium"
+        [class]="
+          feedbackMessage()?.type === 'error'
+            ? 'bg-warn/10 text-warn dark:text-warn-bright'
+            : 'bg-accent/10 text-accent dark:text-accent-bright'
+        "
       >
-        <span class="feedback-icon">
-          @if(feedbackMessage()?.type === 'error') { 🚫 }
-          @if(feedbackMessage()?.type === 'warning') { ⚠️ }
+        <span class="text-xl">
+          @if(feedbackMessage()?.type === 'error') { 🚫 } @if(feedbackMessage()?.type === 'warning')
+          { ⚠️ }
         </span>
         <span>{{ feedbackMessage()?.text }}</span>
       </div>
       }
 
       <!-- Guess Input Section -->
-      <div class="guess-section">
+      <div class="border-t border-black/10 dark:border-white/10 pt-5 mt-2">
         @if (gameStatus() === 'WON') {
-        <div class="result-box won animate-in">
-          <div class="result-icon">🎉</div>
-          <h3>Correct!</h3>
-          <p>
-            You correctly identified <span class="language">{{ displayLanguage() }}</span>!
+        <div
+          class="animate-in py-8 px-6 rounded-2xl text-center bg-success/10 text-success dark:text-success-bright"
+        >
+          <div class="text-5xl mb-4">🎉</div>
+          <h3 class="m-0 mb-2 text-2xl font-bold">Correct!</h3>
+          <p class="m-0 text-base">
+            You correctly identified <span class="font-bold">{{ displayLanguage() }}</span
+            >!
           </p>
-          <div class="emoji-history">
+          <div class="flex gap-1 justify-center mt-4 text-xl">
             @for (emoji of historyEmojis(); track $index) {
             <span>{{ emoji }}</span>
             }
           </div>
         </div>
         } @else if (gameStatus() === 'LOST') {
-        <div class="result-box lost animate-in">
-          <div class="result-icon">😢</div>
-          <h3>Game Over</h3>
-          <p>
-            The correct language was <span class="language">{{ displayLanguage() }}</span>.
+        <div
+          class="animate-in py-8 px-6 rounded-2xl text-center bg-warn/10 text-warn dark:text-warn-bright"
+        >
+          <div class="text-5xl mb-4">😢</div>
+          <h3 class="m-0 mb-2 text-2xl font-bold">Game Over</h3>
+          <p class="m-0 text-base">
+            The correct language was <span class="font-bold">{{ displayLanguage() }}</span
+            >.
           </p>
-          <div class="emoji-history">
+          <div class="flex gap-1 justify-center mt-4 text-xl">
             @for (emoji of historyEmojis(); track $index) {
             <span>{{ emoji }}</span>
             }
@@ -98,12 +136,12 @@
         </div>
         } @else {
         <div>
-          <label class="guess-label">Type your guess</label>
-          <div class="guess-row">
-            <div class="guess-input-wrapper">
+          <label class="block text-sm font-medium mb-3">Type your guess</label>
+          <div class="flex gap-3 relative">
+            <div class="flex-1 relative">
               <input
                 type="text"
-                class="guess-input"
+                class="w-full py-3.5 px-4 text-base rounded-xl outline-none transition-all box-border border-2 border-black/10 dark:border-white/20 bg-white dark:bg-white/10 focus:border-solution"
                 [formControl]="guessControl"
                 (focus)="showDropdownHandler()"
                 (blur)="hideDropdownHandler()"
@@ -112,26 +150,37 @@
               />
 
               @if (showDropdown() && filteredLanguages().length > 0) {
-              <ul class="dropdown">
+              <ul
+                class="absolute z-50 left-0 right-0 mt-2 rounded-xl shadow-2xl max-h-60 overflow-y-auto list-none py-2 m-0 bg-white dark:bg-surface-dark border border-black/10 dark:border-white/10"
+              >
                 @for (option of filteredLanguages(); track option.code) {
-                <li (mousedown)="selectLanguage(option)">
+                <li
+                  class="px-4 py-3 cursor-pointer text-base transition-colors hover:bg-solution/10"
+                >
                   {{ option.label }}
-                  <span class="code">{{ option.code }}</span>
+                  <span class="text-xs ml-2 font-mono opacity-60">{{ option.code }}</span>
                 </li>
                 }
               </ul>
               }
             </div>
-            <button class="submit-button" (click)="submitGuess()">Guess</button>
+            <button
+              class="py-3.5 px-6 text-base font-semibold rounded-xl cursor-pointer transition-all whitespace-nowrap bg-solution hover:bg-solution-bright text-text-inverse"
+              (click)="submitGuess()"
+            >
+              Guess
+            </button>
           </div>
 
-          <div class="hints-row">
-            <span class="hints-count">
+          <div class="flex justify-between items-center mt-3 text-sm">
+            <span class="text-text/60 dark:text-text-inverse/60">
               @if(stage() > 0) { Hints revealed: {{ stage() }}/5 }
             </span>
 
             @if (stage() < 5) {
-            <span class="hints-warning">Wrong guess reveals the next hint</span>
+            <span class="font-medium text-accent dark:text-accent-bright"
+              >Wrong guess reveals the next hint</span
+            >
             }
           </div>
         </div>

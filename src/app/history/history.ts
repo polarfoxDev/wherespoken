@@ -11,111 +11,40 @@ const FIRST_RIDDLE_DATE_ISO = '2026-01-01';
   providers: [DatePipe],
   imports: [RouterModule, CalendarComponent],
   template: `
-    <div class="history">
-      <div class="header">
-        <h1>History</h1>
-        <a class="info-button close-button" routerLink="/">×</a>
+    <div class="flex flex-col justify-center items-center gap-5 p-5 text-center">
+      <div class="flex justify-center items-center gap-2.5">
+        <h1 class="m-0 text-2xl font-semibold">History</h1>
+        <a class="info-button text-xl" routerLink="/">×</a>
       </div>
 
-      <p class="calendar-width">
+      <p class="max-w-87.5 m-0 text-guess dark:text-guess-bright">
         Select a date to play a past puzzle.<br />
         {{ minDateString }} – {{ todayDateString }}
       </p>
 
       <app-calendar (dateSelected)="onDateSelected($event)"></app-calendar>
 
-      <div class="key">
-        <div class="key-item">
-          <div class="date available"></div>
+      <div class="flex justify-center items-center flex-col gap-2.5">
+        <div class="flex justify-center items-center gap-2 text-sm">
+          <div class="w-3 h-3 rounded-full bg-guess"></div>
           Available
         </div>
-        <div class="key-item">
-          <div class="date active"></div>
+        <div class="flex justify-center items-center gap-2 text-sm">
+          <div class="w-3 h-3 rounded-full bg-solution"></div>
           In Progress
         </div>
-        <div class="key-item">
-          <div class="date finished"></div>
+        <div class="flex justify-center items-center gap-2 text-sm">
+          <div class="w-3 h-3 rounded-full bg-accent"></div>
           Completed
         </div>
       </div>
 
-      <a class="today-button" routerLink="/">Today's Puzzle</a>
+      <a
+        class="flex h-12 w-48 rounded-lg bg-solution text-text-inverse text-base font-medium justify-center items-center no-underline transition-transform hover:scale-102"
+        routerLink="/"
+        >Today's Puzzle</a
+      >
     </div>
-  `,
-  styles: `
-    .history {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 20px;
-      padding: 20px;
-    }
-    .history * {
-      text-align: center;
-    }
-    .header {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-    }
-    h1 {
-      margin: 0;
-      font-size: 24px;
-      font-weight: 600;
-    }
-    .close-button {
-      font-size: 20px;
-    }
-    .calendar-width {
-      max-width: 350px;
-      margin: 0;
-      color: light-dark(var(--guess), var(--guess-brighter));
-    }
-    .key {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .key-item {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-    }
-    .date {
-      width: 12px;
-      height: 12px;
-      border-radius: 100%;
-      background: var(--guess);
-    }
-    .date.active {
-      background: var(--solution);
-    }
-    .date.finished {
-      background: var(--super-solution);
-    }
-    .today-button {
-      display: flex;
-      height: 50px;
-      width: 200px;
-      border-radius: 10px;
-      background: var(--solution);
-      color: var(--light-text);
-      font-size: 16px;
-      font-weight: 500;
-      justify-content: center;
-      align-items: center;
-      text-decoration: none;
-      transition: all 0.2s ease;
-    }
-    .today-button:hover {
-      transform: scale(1.02);
-    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

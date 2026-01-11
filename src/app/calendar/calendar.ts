@@ -11,8 +11,11 @@ const FIRST_RIDDLE_DATE_ISO = '2026-01-01';
   providers: [DatePipe],
   imports: [CalendarDateComponent, DatePipe],
   template: `
-    <div class="calendar">
-      <div class="calendar-header">
+    <div
+      class="grid grid-cols-7 gap-0.5"
+      style="grid-template-columns: repeat(7, 44px); grid-auto-rows: 44px;"
+    >
+      <div class="col-span-7 flex justify-between items-center px-2 mb-2">
         <button
           class="info-button"
           [disabled]="!activeMonth().previousAvailable"
@@ -20,62 +23,26 @@ const FIRST_RIDDLE_DATE_ISO = '2026-01-01';
         >
           ‹
         </button>
-        <h2>{{ activeMonth().dates[0].date | date : 'MMMM yyyy' }}</h2>
-        <button
-          class="info-button"
-          [disabled]="!activeMonth().nextAvailable"
-          (click)="nextMonth()"
-        >
+        <h2 class="m-0 text-base font-semibold">
+          {{ activeMonth().dates[0].date | date : 'MMMM yyyy' }}
+        </h2>
+        <button class="info-button" [disabled]="!activeMonth().nextAvailable" (click)="nextMonth()">
           ›
         </button>
       </div>
 
       @for (day of weekdays; track day) {
-        <div class="weekday">{{ day }}</div>
-      }
-      @if (activeMonth().gridOffset > 0) {
-        <div
-          class="date-offset"
-          [style.grid-column]="'1 / span ' + activeMonth().gridOffset"
-        ></div>
-      }
-      @for (date of activeMonth().dates; track $index) {
-        <app-calendar-date [date]="date" (dateSelected)="onDateSelected($event)"></app-calendar-date>
+      <div
+        class="flex justify-center items-center text-xs font-semibold uppercase text-guess dark:text-guess-bright"
+      >
+        {{ day }}
+      </div>
+      } @if (activeMonth().gridOffset > 0) {
+      <div [style.grid-column]="'1 / span ' + activeMonth().gridOffset"></div>
+      } @for (date of activeMonth().dates; track $index) {
+      <app-calendar-date [date]="date" (dateSelected)="onDateSelected($event)"></app-calendar-date>
       }
     </div>
-  `,
-  styles: `
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(7, 44px);
-      grid-auto-rows: 44px;
-      gap: 2px;
-    }
-    .calendar-header {
-      grid-column: 1 / span 7;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 8px;
-      margin-bottom: 8px;
-    }
-    .calendar-header h2 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 600;
-    }
-    .weekday {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 12px;
-      font-weight: 600;
-      color: light-dark(var(--guess), var(--guess-brighter));
-      text-transform: uppercase;
-    }
-    .date-offset {
-      display: block;
-    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -125,8 +92,8 @@ export class CalendarComponent {
           ? gameMetadata.finished
             ? GameStatus.Finished
             : gameMetadata.started
-              ? GameStatus.InProgress
-              : GameStatus.NotStarted
+            ? GameStatus.InProgress
+            : GameStatus.NotStarted
           : GameStatus.NotStarted
         : GameStatus.NotAvailable;
       dates.push({ date, isToday, gameStatus });
@@ -143,12 +110,16 @@ export class CalendarComponent {
 
   previousMonth(): void {
     const current = this.activeMonth().dates[0].date;
-    this.activeMonth.set(this.createMonth(new Date(current.getFullYear(), current.getMonth() - 1, 1)));
+    this.activeMonth.set(
+      this.createMonth(new Date(current.getFullYear(), current.getMonth() - 1, 1))
+    );
   }
 
   nextMonth(): void {
     const current = this.activeMonth().dates[0].date;
-    this.activeMonth.set(this.createMonth(new Date(current.getFullYear(), current.getMonth() + 1, 1)));
+    this.activeMonth.set(
+      this.createMonth(new Date(current.getFullYear(), current.getMonth() + 1, 1))
+    );
   }
 
   onDateSelected(date: Date): void {

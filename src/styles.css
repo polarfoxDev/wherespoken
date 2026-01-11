@@ -1,30 +1,31 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
-@import "tailwindcss";
+@import 'tailwindcss';
 
-:root {
-  color-scheme: light dark;
+/* Define theme colors for Tailwind v4 */
+@theme {
+  /* Primary colors */
+  --color-guess: #687fa8;
+  --color-guess-bright: #99a8c2;
+  --color-guess-brightest: #c2d1e0;
+  --color-guess-dark: #3b4d6f;
+  --color-solution: #2153e8;
+  --color-solution-bright: #5090f0;
+  --color-accent: #dd00f5;
+  --color-accent-bright: #d481f8;
+  --color-warn: #ee2323;
+  --color-warn-bright: #f55f5f;
+  --color-success: #2e8b57;
+  --color-success-bright: #4dbf8f;
 
-  --guess: #687fa8;
-  --guess-brighter: #99a8c2;
-  --guess-brightest: #c2d1e0;
-  --guess-darkest: #3b4d6f;
-  --solution: #2153e8;
-  --solution-brighter: #5090f0;
-  --super-solution: #dd00f5;
-  --super-solution-brighter: #d481f8;
-  --warn: #ee2323;
-  --warn-brighter: #f55f5f;
-  --info: #2e8b57;
-  --info-brighter: #4dbf8f;
-  --highlight-hint: rgba(212, 129, 248, 0.2);
+  /* Backgrounds */
+  --color-surface: #f6f8fa;
+  --color-surface-dark: #11111b;
 
-  --dark-bg: #11111b;
-  --light-bg: #f6f8fa;
-
-  --light-text: #f6f8fa;
-  --dark-text: #11111b;
+  /* Text */
+  --color-text: #11111b;
+  --color-text-inverse: #f6f8fa;
 }
 
 html,
@@ -32,9 +33,17 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
-  background-color: light-dark(var(--light-bg), var(--dark-bg));
-  color: light-dark(var(--dark-text), var(--light-text));
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+
+@media (prefers-color-scheme: dark) {
+  html,
+  body {
+    background-color: var(--color-surface-dark);
+    color: var(--color-text-inverse);
+  }
 }
 
 button,
@@ -42,7 +51,7 @@ a {
   border: none;
   cursor: pointer;
   outline: none;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   padding: 5px;
 }
 
@@ -50,28 +59,10 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* Info button - used across the app */
 .info-button {
-  padding: 0;
-  border-radius: 100%;
-  border: 2px solid light-dark(var(--guess), var(--guess-brighter));
-  background: none;
-  color: light-dark(var(--guess), var(--guess-brighter));
-  font-weight: bold;
-  font-size: 15px;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  transition: background 0.3s ease;
-}
-
-.info-button:hover {
-  background: #c2d1e055;
-}
-
-.info-button:disabled {
-  border: 2px solid light-dark(var(--guess-brightest), var(--guess-darkest));
-  color: light-dark(var(--guess-brightest), var(--guess-darkest));
+  @apply p-0 rounded-full border-2 border-guess bg-transparent text-guess font-bold text-base w-7.5 h-7.5 flex items-center justify-center no-underline transition-colors;
+  @apply dark:border-guess-bright dark:text-guess-bright;
+  @apply hover:bg-guess/20;
+  @apply disabled:border-guess-brightest disabled:text-guess-brightest dark:disabled:border-guess-dark dark:disabled:text-guess-dark;
 }

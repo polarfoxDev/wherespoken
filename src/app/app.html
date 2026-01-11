@@ -1,26 +1,49 @@
-<div class="app">
-  <header class="header">
-    <a class="logo-button" [href]="gameOverviewUrl" target="_blank" aria-label="polarnight.eu games">
-      <img src="https://polarnight.eu/assets/images/logo.png" alt="polarnight.eu logo" />
+<div
+  class="min-h-dvh flex flex-col justify-between bg-surface dark:bg-surface-dark text-text dark:text-text-inverse"
+>
+  <header class="flex justify-center items-center gap-3 p-4">
+    <a
+      class="flex items-center justify-center w-9 h-9 p-1 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+      [href]="gameOverviewUrl"
+      target="_blank"
+      aria-label="polarnight.eu games"
+    >
+      <img
+        class="w-full h-full object-contain"
+        src="https://polarnight.eu/assets/images/logo.png"
+        alt="polarnight.eu logo"
+      />
     </a>
-    <h1 class="title">{{ APP_NAME }}</h1>
+    <h1 class="m-0 text-xl font-semibold">{{ APP_NAME }}</h1>
     <a class="info-button" routerLink="/history" aria-label="History">📅</a>
   </header>
 
-  <main class="content">
+  <main class="flex-1 flex flex-col">
     <router-outlet />
   </main>
 
-  <footer class="footer">
-    <p class="version-info">
+  <footer
+    class="h-12 text-xs text-guess dark:text-guess-bright flex gap-1.5 w-full justify-center items-center py-2"
+  >
+    <p class="flex gap-1 items-center m-0">
       <span>{{ APP_NAME }}</span>
-      <span class="version">v{{ version }}</span>
+      <span class="opacity-70">v{{ version }}</span>
     </p>
-    <p>
-      <a target="_blank" href="https://r.polarnight.eu/impressum">Imprint</a>
+    <p class="m-0">
+      <a
+        class="text-guess dark:text-guess-bright no-underline hover:underline"
+        target="_blank"
+        href="https://r.polarnight.eu/impressum"
+        >Imprint</a
+      >
     </p>
-    <p>
-      <a target="_blank" href="https://r.polarnight.eu/datenschutz">Privacy</a>
+    <p class="m-0">
+      <a
+        class="text-guess dark:text-guess-bright no-underline hover:underline"
+        target="_blank"
+        href="https://r.polarnight.eu/datenschutz"
+        >Privacy</a
+      >
     </p>
   </footer>
 </div>
