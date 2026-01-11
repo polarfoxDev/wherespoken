@@ -1,20 +1,23 @@
 <div
   class="min-h-dvh flex flex-col justify-between bg-surface dark:bg-surface-dark text-text dark:text-text-inverse"
 >
-  <header class="flex justify-center items-center gap-3 p-4">
+  <header class="flex justify-center items-center p-4">
     <a
-      class="flex items-center justify-center w-9 h-9 p-1 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+      class="flex items-center justify-center gap-1 p-1 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/10"
       [href]="gameOverviewUrl"
-      target="_blank"
-      aria-label="polarnight.eu games"
+      aria-label="Game overview"
+      title="Game overview"
     >
       <img
-        class="w-full h-full object-contain"
+        class="w-6 h-6 object-contain -translate-y-[1px]"
         src="https://polarnight.eu/assets/images/logo.png"
         alt="polarnight.eu logo"
       />
+      <span
+        class="w-1.5 h-1.5 border-l-2 border-b-2 border-guess dark:border-guess-bright rotate-45 -mr-0.5"
+      ></span>
     </a>
-    <h1 class="m-0 text-xl font-semibold">{{ APP_NAME }}</h1>
+    <h1 class="m-0 ml-1 mr-3 text-xl font-semibold">{{ APP_NAME }}</h1>
     <a class="info-button" routerLink="/history" aria-label="History">📅</a>
   </header>
 

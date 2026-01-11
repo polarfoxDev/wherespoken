@@ -40,7 +40,7 @@ const FIRST_RIDDLE_DATE_ISO = '2026-01-01';
       </div>
 
       <a
-        class="flex h-12 w-48 rounded-lg bg-solution text-text-inverse text-base font-medium justify-center items-center no-underline transition-transform hover:scale-102"
+        class="flex h-12 w-48 rounded-lg bg-guess text-text-inverse text-base font-medium justify-center items-center no-underline transition-transform hover:scale-102"
         routerLink="/"
         >Today's Puzzle</a
       >

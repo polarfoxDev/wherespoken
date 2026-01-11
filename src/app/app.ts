@@ -9,7 +9,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
-  readonly APP_NAME = 'Wherespoken';
+  readonly APP_NAME = 'WhereSpoken';
   readonly version = '1.0.0';
-  readonly gameOverviewUrl = 'https://polarnight.eu';
+  readonly gameOverviewUrl = 'https://games.polarnight.eu';
 }
