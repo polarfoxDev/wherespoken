@@ -2,9 +2,7 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { CalendarDateComponent } from './calendar-date/calendar-date';
 import { CalendarDate, CalendarMonth, GameStatus } from './calendar.models';
-
-// First riddle date for wherespoken
-const FIRST_RIDDLE_DATE_ISO = '2026-01-01';
+import { FIRST_RIDDLE_DATE_ISO } from '../consts';
 
 @Component({
   selector: 'app-calendar',

@@ -41,6 +41,22 @@
             <span>{{ emoji }}</span>
             }
           </div>
+          <div class="flex gap-3 justify-center mt-5">
+            <button
+              class="py-2 px-4 rounded-xl bg-success text-text-inverse font-medium transition-all hover:scale-105"
+              (click)="copy()"
+            >
+              {{ copyConfirmation() ? '✓ Copied!' : '📋 Copy' }}
+            </button>
+            @if (canShare) {
+            <button
+              class="py-2 px-4 rounded-xl bg-success text-text-inverse font-medium transition-all hover:scale-105"
+              (click)="share()"
+            >
+              📤 Share
+            </button>
+            }
+          </div>
         </div>
         } @else if (gameStatus() === 'LOST') {
         <div
@@ -55,6 +71,22 @@
           <div class="flex gap-1 justify-center mt-4 text-xl">
             @for (emoji of historyEmojis(); track $index) {
             <span>{{ emoji }}</span>
+            }
+          </div>
+          <div class="flex gap-3 justify-center mt-5">
+            <button
+              class="py-2 px-4 rounded-xl bg-warn text-text-inverse font-medium transition-all hover:scale-105"
+              (click)="copy()"
+            >
+              {{ copyConfirmation() ? '✓ Copied!' : '📋 Copy' }}
+            </button>
+            @if (canShare) {
+            <button
+              class="py-2 px-4 rounded-xl bg-warn text-text-inverse font-medium transition-all hover:scale-105"
+              (click)="share()"
+            >
+              📤 Share
+            </button>
             }
           </div>
         </div>

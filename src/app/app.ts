@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
+import { APP_NAME } from './consts';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -9,7 +11,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
-  readonly APP_NAME = 'WhereSpoken';
+  readonly APP_NAME = APP_NAME;
   readonly version = '1.0.0';
-  readonly gameOverviewUrl = 'https://games.polarnight.eu';
+  readonly gameOverviewUrl = environment.gameOverviewUrl;
 }

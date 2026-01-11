@@ -6,6 +6,8 @@ import { LOCALE_CODES } from '../types/languages';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { map, startWith } from 'rxjs';
+import { getTodayRiddleIndex } from '../consts';
+import { environment } from '../../environments/environment';
 
 export type GameStatus = 'PLAYING' | 'WON' | 'LOST';
 export type GuessResult = 'WRONG' | 'BASE_MATCH' | 'CORRECT' | 'LOST';
@@ -205,5 +207,28 @@ export class Riddle {
   hideDropdownHandler() {
     // Delay to allow click on dropdown items
     setTimeout(() => this.showDropdown.set(false), 200);
+  }
+
+  // Share functionality
+  canShare = typeof navigator !== 'undefined' && navigator.share !== undefined;
+  copyConfirmation = signal(false);
+
+  private getShareText(): string {
+    const riddleIndex = getTodayRiddleIndex();
+    const title = `🗣️ WhereSpoken #${riddleIndex + 1}`;
+    const emojis = this.historyEmojis().join('');
+    return `${title}\n${emojis}\n\n${environment.gameUrl}`;
+  }
+
+  share(): void {
+    if (this.canShare) {
+      navigator.share({ title: 'WhereSpoken', text: this.getShareText() });
+    }
+  }
+
+  copy(): void {
+    navigator.clipboard.writeText(this.getShareText());
+    this.copyConfirmation.set(true);
+    setTimeout(() => this.copyConfirmation.set(false), 3000);
   }
 }
