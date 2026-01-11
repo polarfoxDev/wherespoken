@@ -1,5 +1,22 @@
-@if(api.sample()) {
+@if (api.sample()) {
 <app-riddle [sample]="api.sample()!"></app-riddle>
+} @else if (api.sampleError() || api.scheduleError()) {
+<div class="flex flex-col items-center justify-center gap-4 p-8 text-center">
+  <div class="text-5xl">😕</div>
+  <h2 class="m-0 text-xl font-semibold text-warn">Oops!</h2>
+  <p class="m-0 text-base text-text/70 dark:text-text-inverse/70 max-w-sm">
+    {{ api.sampleError() || api.scheduleError() }}
+  </p>
+  <button
+    class="mt-4 py-3 px-6 rounded-xl bg-solution text-text-inverse font-medium transition-all hover:scale-105"
+    (click)="api.loadSchedule()"
+  >
+    Try Again
+  </button>
+</div>
 } @else {
-<p>Loading sample...</p>
+<div class="flex flex-col items-center justify-center gap-4 p-8">
+  <app-spinner></app-spinner>
+  <p class="m-0 text-sm text-guess dark:text-guess-bright">Loading puzzle...</p>
+</div>
 }

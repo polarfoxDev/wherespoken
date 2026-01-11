@@ -1,12 +1,22 @@
-import { Component, computed, effect, inject, input, untracked } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  untracked,
+} from '@angular/core';
 import { Api } from '../api';
 import { Riddle } from '../riddle/riddle';
+import { SpinnerComponent } from '../spinner/spinner';
 
 @Component({
   selector: 'app-game',
-  imports: [Riddle],
+  imports: [Riddle, SpinnerComponent],
   templateUrl: './game.html',
   styleUrl: './game.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Game {
   api = inject(Api);
@@ -26,7 +36,7 @@ export class Game {
       if (id) {
         untracked(() => this.api.loadSample(id));
       } else if (Object.keys(this.api.schedule()).length > 0) {
-        console.error('No sample scheduled for today.');
+        untracked(() => this.api.setNoSampleError());
       }
     });
   }
