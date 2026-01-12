@@ -18,6 +18,7 @@ import { map, startWith } from 'rxjs';
 import { getTodayRiddleIndex } from '../consts';
 import { environment } from '../../environments/environment';
 import { GameState } from '../game-state';
+import { FamilyComparisonResult, LanguageFamilyService } from '../language-family.service';
 
 export type GameStatus = 'PLAYING' | 'WON' | 'LOST';
 export type GuessResult = 'WRONG' | 'BASE_MATCH' | 'CORRECT' | 'LOST';
@@ -32,6 +33,7 @@ export type GuessResult = 'WRONG' | 'BASE_MATCH' | 'CORRECT' | 'LOST';
 export class Riddle {
   private sanitizer = inject(DomSanitizer);
   private gameStateService = inject(GameState);
+  private languageFamilyService = inject(LanguageFamilyService);
 
   sample = input.required<ExtendedSampleMetadata>();
   date = input<string>();
@@ -52,7 +54,11 @@ export class Riddle {
   restrictToBase = signal<string | null>(null);
   guessedCodes = signal<string[]>([]);
   history = signal<GuessResult[]>([]);
-  feedbackMessage = signal<{ type: 'error' | 'warning'; text: string } | null>(null);
+  feedbackMessage = signal<{
+    type: 'error' | 'warning';
+    text: string;
+    familyComparison?: FamilyComparisonResult;
+  } | null>(null);
 
   constructor() {
     // Load saved state when date changes
@@ -245,9 +251,17 @@ export class Riddle {
         this.history.update((h) => [...h, 'LOST']);
         this.feedbackMessage.set(null);
       } else {
+        const familyComparison = this.languageFamilyService.compareFamilies(
+          guessedCode,
+          sampleCode
+        );
         this.guessedCodes.update((c) => [...c, guessedCode]);
         this.history.update((h) => [...h, 'WRONG']);
-        this.feedbackMessage.set({ type: 'error', text: 'Incorrect guess.' });
+        this.feedbackMessage.set({
+          type: 'error',
+          text: 'Incorrect guess.',
+          familyComparison,
+        });
         this.guessControl.setValue('');
         this.nextHint();
       }
