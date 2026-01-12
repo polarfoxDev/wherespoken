@@ -109,6 +109,7 @@ export const LOCALE_CODES = [
   'es-PE',
   'su-ID',
   'sw-TZ',
+  'sw-KE',
   'sv-SE',
   'tl-PH',
   'tg-TJ',
