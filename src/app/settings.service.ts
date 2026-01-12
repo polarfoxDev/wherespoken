@@ -14,7 +14,7 @@ const DEFAULT_SETTINGS: Settings = {
 
 @Injectable({ providedIn: 'root' })
 export class SettingsService {
-  private readonly settings = signal<Settings>(DEFAULT_SETTINGS);
+  private readonly settings = signal<Settings>(this.loadFromStorage());
 
   /** Current difficulty mode */
   readonly difficulty = computed(() => this.settings().difficulty);
@@ -25,20 +25,17 @@ export class SettingsService {
   /** Whether ancestry/family comparison should be shown */
   readonly showAncestry = computed(() => this.settings().difficulty !== 'extreme');
 
-  constructor() {
-    this.loadFromStorage();
-  }
-
-  private loadFromStorage(): void {
+  private loadFromStorage(): Settings {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored) as Partial<Settings>;
-        this.settings.set({ ...DEFAULT_SETTINGS, ...parsed });
+        return { ...DEFAULT_SETTINGS, ...parsed };
       }
     } catch {
       // Ignore storage errors
     }
+    return DEFAULT_SETTINGS;
   }
 
   private saveToStorage(): void {
