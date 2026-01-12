@@ -19,6 +19,7 @@ import { getTodayRiddleIndex, getRiddleIndex } from '../consts';
 import { environment } from '../../environments/environment';
 import { GameState } from '../game-state';
 import { FamilyComparisonResult, LanguageFamilyService } from '../language-family.service';
+import { DifficultyMode, SettingsService } from '../settings.service';
 
 export type GameStatus = 'PLAYING' | 'WON' | 'LOST';
 export type GuessResult = 'WRONG' | 'BASE_MATCH' | 'CORRECT' | 'LOST';
@@ -34,11 +35,65 @@ export class Riddle {
   private sanitizer = inject(DomSanitizer);
   private gameStateService = inject(GameState);
   private languageFamilyService = inject(LanguageFamilyService);
+  private settingsService = inject(SettingsService);
+
+  // Game state signals (declared early so they can be used in computed)
+  stage = signal(0); // 0: Audio, 1: Text, 2: Trans, 3: HintAudio, 4: HintText, 5: HintTrans
+  gameStatus = signal<GameStatus>('PLAYING');
+  showDropdown = signal(false);
+  restrictToBase = signal<string | null>(null);
+  guessedCodes = signal<string[]>([]);
+  history = signal<GuessResult[]>([]);
+  similarityScores = signal<number[]>([]);
+  /** Difficulty at time game was started (locked after first guess) */
+  gameDifficulty = signal<DifficultyMode>('normal');
+  feedbackMessage = signal<{
+    type: 'error' | 'warning';
+    text: string;
+    familyComparison?: FamilyComparisonResult;
+  } | null>(null);
+
+  /** Whether the game has started (first guess made) - locks difficulty */
+  gameStarted = computed(() => this.history().length > 0);
+
+  /**
+   * Effective difficulty: use gameDifficulty when game started, otherwise global setting
+   */
+  difficulty = computed(() =>
+    this.gameStarted() ? this.gameDifficulty() : this.settingsService.difficulty()
+  );
+
+  /** Whether hints should be shown based on effective difficulty */
+  showHints = computed(() => this.difficulty() === 'normal');
+
+  /** Whether ancestry should be shown based on effective difficulty */
+  showAncestry = computed(() => this.difficulty() !== 'extreme');
+
+  difficultyLabel = computed(() => {
+    const d = this.difficulty();
+    return d === 'normal' ? '🎯 Normal' : d === 'hard' ? '🔥 Hard' : '💀 Extreme';
+  });
+
+  difficultyDescription = computed(() => {
+    const d = this.difficulty();
+    return d === 'normal'
+      ? 'Hints & ancestry shown'
+      : d === 'hard'
+      ? 'No hints, ancestry shown'
+      : 'No hints or ancestry';
+  });
+
+  toggleDifficulty(): void {
+    // Only allow changing difficulty before game starts
+    if (!this.gameStarted()) {
+      this.settingsService.cycleDifficulty();
+    }
+  }
 
   sample = input.required<ExtendedSampleMetadata>();
   date = input<string>();
 
-  // Game state
+  // Form control for guessing
   guessControl = new FormControl('');
   private guessValue = toSignal(
     this.guessControl.valueChanges.pipe(
@@ -47,19 +102,6 @@ export class Riddle {
     ),
     { initialValue: '' }
   );
-
-  stage = signal(0); // 0: Audio, 1: Text, 2: Trans, 3: HintAudio, 4: HintText, 5: HintTrans
-  gameStatus = signal<GameStatus>('PLAYING');
-  showDropdown = signal(false);
-  restrictToBase = signal<string | null>(null);
-  guessedCodes = signal<string[]>([]);
-  history = signal<GuessResult[]>([]);
-  similarityScores = signal<number[]>([]);
-  feedbackMessage = signal<{
-    type: 'error' | 'warning';
-    text: string;
-    familyComparison?: FamilyComparisonResult;
-  } | null>(null);
 
   constructor() {
     // Load saved state when date changes
@@ -73,6 +115,7 @@ export class Riddle {
         this.history.set(savedState.history);
         this.restrictToBase.set(savedState.restrictToBase);
         this.similarityScores.set(savedState.similarityScores ?? []);
+        this.gameDifficulty.set(savedState.difficulty ?? 'normal');
       } else {
         // Reset state for new game
         this.stage.set(0);
@@ -81,6 +124,7 @@ export class Riddle {
         this.history.set([]);
         this.restrictToBase.set(null);
         this.similarityScores.set([]);
+        this.gameDifficulty.set(this.difficulty());
       }
       this.feedbackMessage.set(null);
       this.guessControl.setValue('');
@@ -94,6 +138,7 @@ export class Riddle {
       const history = this.history();
       const restrictToBase = this.restrictToBase();
       const similarityScores = this.similarityScores();
+      const difficulty = this.gameDifficulty();
       const dateISO = untracked(() => this.date()) ?? new Date().toISOString().slice(0, 10);
 
       // Only save if game has started (has history or advanced stage)
@@ -105,6 +150,7 @@ export class Riddle {
           history,
           restrictToBase,
           similarityScores,
+          difficulty,
         });
       }
     });
@@ -192,6 +238,11 @@ export class Riddle {
     const matchedOption = this.localeOptions().find((o) => o.label.toLowerCase() === guess);
 
     if (!matchedOption) return;
+
+    // Lock difficulty on first guess
+    if (this.history().length === 0) {
+      this.gameDifficulty.set(this.difficulty());
+    }
 
     const sampleCode = this.sample().language;
     let sampleBase = sampleCode;
@@ -366,12 +417,16 @@ export class Riddle {
     const riddleIndex = getRiddleIndex(dateISO);
     const history = this.history();
     const scores = this.getEffectiveSimilarityScores();
+    const difficulty = this.gameDifficulty();
 
     const guessCount = history.length;
     const won = this.gameStatus() === 'WON';
     const resultText = won ? `${guessCount}/6` : 'X/6';
 
-    const title = `🗣️ WhereSpoken #${riddleIndex} ${resultText}`;
+    // Add difficulty indicator for hard modes
+    const difficultyEmoji = difficulty === 'extreme' ? ' 💀' : difficulty === 'hard' ? ' 🔥' : '';
+
+    const title = `🗣️ WhereSpoken #${riddleIndex} ${resultText}${difficultyEmoji}`;
 
     // Generate rows for each guess
     const rows = history.map((result, index) => {
