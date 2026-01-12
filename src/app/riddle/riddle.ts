@@ -15,9 +15,11 @@ import { LOCALE_CODES } from '../types/languages';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { map, startWith } from 'rxjs';
-import { getTodayRiddleIndex } from '../consts';
+import { getRiddleIndex } from '../consts';
 import { environment } from '../../environments/environment';
 import { GameState } from '../game-state';
+import { FamilyComparisonResult, LanguageFamilyService } from '../language-family.service';
+import { DifficultyMode, SettingsService } from '../settings.service';
 
 export type GameStatus = 'PLAYING' | 'WON' | 'LOST';
 export type GuessResult = 'WRONG' | 'BASE_MATCH' | 'CORRECT' | 'LOST';
@@ -32,11 +34,66 @@ export type GuessResult = 'WRONG' | 'BASE_MATCH' | 'CORRECT' | 'LOST';
 export class Riddle {
   private sanitizer = inject(DomSanitizer);
   private gameStateService = inject(GameState);
+  private languageFamilyService = inject(LanguageFamilyService);
+  private settingsService = inject(SettingsService);
+
+  // Game state signals (declared early so they can be used in computed)
+  stage = signal(0); // 0: Audio, 1: Text, 2: Trans, 3: HintAudio, 4: HintText, 5: HintTrans
+  gameStatus = signal<GameStatus>('PLAYING');
+  showDropdown = signal(false);
+  restrictToBase = signal<string | null>(null);
+  guessedCodes = signal<string[]>([]);
+  history = signal<GuessResult[]>([]);
+  similarityScores = signal<number[]>([]);
+  /** Difficulty at time game was started (locked after first guess) */
+  gameDifficulty = signal<DifficultyMode>('normal');
+  feedbackMessage = signal<{
+    type: 'error' | 'warning';
+    text: string;
+    familyComparison?: FamilyComparisonResult;
+  } | null>(null);
+
+  /** Whether the game has started (first guess made) - locks difficulty */
+  gameStarted = computed(() => this.history().length > 0);
+
+  /**
+   * Effective difficulty: use gameDifficulty when game started, otherwise global setting
+   */
+  difficulty = computed(() =>
+    this.gameStarted() ? this.gameDifficulty() : this.settingsService.difficulty()
+  );
+
+  /** Whether hints should be shown based on effective difficulty */
+  showHints = computed(() => this.difficulty() === 'normal');
+
+  /** Whether ancestry should be shown based on effective difficulty */
+  showAncestry = computed(() => this.difficulty() !== 'extreme');
+
+  difficultyLabel = computed(() => {
+    const d = this.difficulty();
+    return d === 'normal' ? '🎯 Normal' : d === 'hard' ? '🔥 Hard' : '💀 Extreme';
+  });
+
+  difficultyDescription = computed(() => {
+    const d = this.difficulty();
+    return d === 'normal'
+      ? 'Hints & ancestry shown'
+      : d === 'hard'
+      ? 'No hints, ancestry shown'
+      : 'No hints or ancestry';
+  });
+
+  toggleDifficulty(): void {
+    // Only allow changing difficulty before game starts
+    if (!this.gameStarted()) {
+      this.settingsService.cycleDifficulty();
+    }
+  }
 
   sample = input.required<ExtendedSampleMetadata>();
   date = input<string>();
 
-  // Game state
+  // Form control for guessing
   guessControl = new FormControl('');
   private guessValue = toSignal(
     this.guessControl.valueChanges.pipe(
@@ -45,14 +102,6 @@ export class Riddle {
     ),
     { initialValue: '' }
   );
-
-  stage = signal(0); // 0: Audio, 1: Text, 2: Trans, 3: HintAudio, 4: HintText, 5: HintTrans
-  gameStatus = signal<GameStatus>('PLAYING');
-  showDropdown = signal(false);
-  restrictToBase = signal<string | null>(null);
-  guessedCodes = signal<string[]>([]);
-  history = signal<GuessResult[]>([]);
-  feedbackMessage = signal<{ type: 'error' | 'warning'; text: string } | null>(null);
 
   constructor() {
     // Load saved state when date changes
@@ -65,6 +114,8 @@ export class Riddle {
         this.guessedCodes.set(savedState.guessedCodes);
         this.history.set(savedState.history);
         this.restrictToBase.set(savedState.restrictToBase);
+        this.similarityScores.set(savedState.similarityScores ?? []);
+        this.gameDifficulty.set(savedState.difficulty ?? 'normal');
       } else {
         // Reset state for new game
         this.stage.set(0);
@@ -72,6 +123,8 @@ export class Riddle {
         this.guessedCodes.set([]);
         this.history.set([]);
         this.restrictToBase.set(null);
+        this.similarityScores.set([]);
+        this.gameDifficulty.set(this.difficulty());
       }
       this.feedbackMessage.set(null);
       this.guessControl.setValue('');
@@ -84,6 +137,8 @@ export class Riddle {
       const guessedCodes = this.guessedCodes();
       const history = this.history();
       const restrictToBase = this.restrictToBase();
+      const similarityScores = this.similarityScores();
+      const difficulty = this.gameDifficulty();
       const dateISO = untracked(() => this.date()) ?? new Date().toISOString().slice(0, 10);
 
       // Only save if game has started (has history or advanced stage)
@@ -94,26 +149,20 @@ export class Riddle {
           guessedCodes,
           history,
           restrictToBase,
+          similarityScores,
+          difficulty,
         });
       }
     });
   }
 
-  // Computed signals
+  // Computed signals - each entry is now a row of 5 emoji squares
   historyEmojis = computed(() => {
-    return this.history().map((h) => {
-      switch (h) {
-        case 'WRONG':
-          return '⚫';
-        case 'BASE_MATCH':
-          return '🟠';
-        case 'CORRECT':
-          return '🟢🎉';
-        case 'LOST':
-          return '❌';
-        default:
-          return '';
-      }
+    const history = this.history();
+    const scores = this.getEffectiveSimilarityScores();
+    return history.map((result, index) => {
+      const score = scores[index] ?? 0;
+      return this.scoreToEmojiRow(score, result);
     });
   });
 
@@ -190,6 +239,11 @@ export class Riddle {
 
     if (!matchedOption) return;
 
+    // Lock difficulty on first guess
+    if (this.history().length === 0) {
+      this.gameDifficulty.set(this.difficulty());
+    }
+
     const sampleCode = this.sample().language;
     let sampleBase = sampleCode;
     try {
@@ -219,12 +273,14 @@ export class Riddle {
     if (isExactMatch) {
       this.gameStatus.set('WON');
       this.history.update((h) => [...h, 'CORRECT']);
+      this.similarityScores.update((s) => [...s, 100]);
       this.feedbackMessage.set(null);
       this.stage.set(5);
     } else if (isBaseMatch) {
       if (this.stage() === 5) {
         this.gameStatus.set('LOST');
         this.history.update((h) => [...h, 'LOST']);
+        this.similarityScores.update((s) => [...s, 99]); // Very close - right language, wrong region
         this.feedbackMessage.set(null);
       } else {
         // Wrong region, but correct base language.
@@ -232,6 +288,7 @@ export class Riddle {
         this.restrictToBase.set(sampleBase);
         this.guessedCodes.update((c) => [...c, guessedCode]);
         this.history.update((h) => [...h, 'BASE_MATCH']);
+        this.similarityScores.update((s) => [...s, 99]); // Very close - right language, wrong region
         this.feedbackMessage.set({
           type: 'warning',
           text: 'Close! Correct language, wrong region.',
@@ -240,14 +297,24 @@ export class Riddle {
         this.nextHint();
       }
     } else {
+      // Calculate family comparison for wrong guesses
+      const familyComparison = this.languageFamilyService.compareFamilies(guessedCode, sampleCode);
+      const score = familyComparison.distanceScore;
+
       if (this.stage() === 5) {
         this.gameStatus.set('LOST');
         this.history.update((h) => [...h, 'LOST']);
+        this.similarityScores.update((s) => [...s, score]);
         this.feedbackMessage.set(null);
       } else {
         this.guessedCodes.update((c) => [...c, guessedCode]);
         this.history.update((h) => [...h, 'WRONG']);
-        this.feedbackMessage.set({ type: 'error', text: 'Incorrect guess.' });
+        this.similarityScores.update((s) => [...s, score]);
+        this.feedbackMessage.set({
+          type: 'error',
+          text: 'Incorrect guess.',
+          familyComparison,
+        });
         this.guessControl.setValue('');
         this.nextHint();
       }
@@ -278,11 +345,96 @@ export class Riddle {
   canShare = typeof navigator !== 'undefined' && navigator.share !== undefined;
   copyConfirmation = signal(false);
 
+  /**
+   * Convert a similarity score (0-100) to a row of 5 emoji squares
+   * 100% = 🟩🟩🟩🟩🟩, 99% (base match) = 🟨🟨🟨🟨🟨, 0% = ⬛⬛⬛⬛⬛
+   */
+  private scoreToEmojiRow(score: number, result: GuessResult, forShare = false): string {
+    // Special case: correct answer
+    if (result === 'CORRECT') {
+      return forShare ? '🟩🟩🟩🟩🟩🎉' : '🟩🟩🟩🟩🟩';
+    }
+
+    // Special case: base match (correct language, wrong region) - use yellow
+    if (result === 'BASE_MATCH') {
+      return '🟨🟨🟨🟨🟨';
+    }
+
+    // For wrong guesses, show similarity as filled green squares
+    // Each square represents 20%
+    const filledCount = Math.round(score / 20);
+    const filled = '🟩'.repeat(filledCount);
+    const empty = '⬛'.repeat(5 - filledCount);
+
+    // Add ❌ for LOST on last guess (only in share text)
+    if (result === 'LOST' && forShare) {
+      return filled + empty + '❌';
+    }
+
+    return filled + empty;
+  }
+
+  /**
+   * Get similarity scores, recalculating if not stored (backwards compatibility)
+   */
+  private getEffectiveSimilarityScores(): number[] {
+    const stored = this.similarityScores();
+    const history = this.history();
+
+    // If we have stored scores matching history length, use them
+    if (stored.length === history.length && stored.length > 0) {
+      return stored;
+    }
+
+    // Recalculate for backwards compatibility
+    const guessedCodes = this.guessedCodes();
+    const sampleCode = this.sample().language;
+
+    return history.map((result, index) => {
+      if (result === 'CORRECT') return 100;
+      if (result === 'BASE_MATCH') return 99;
+      if (result === 'LOST') {
+        // For LOST, check if it was a base match or wrong
+        const guessCode = guessedCodes[index];
+        if (guessCode) {
+          const comparison = this.languageFamilyService.compareFamilies(guessCode, sampleCode);
+          return comparison.distanceScore;
+        }
+        return 0;
+      }
+      // WRONG
+      const guessCode = guessedCodes[index];
+      if (guessCode) {
+        const comparison = this.languageFamilyService.compareFamilies(guessCode, sampleCode);
+        return comparison.distanceScore;
+      }
+      return 0;
+    });
+  }
+
   private getShareText(): string {
-    const riddleIndex = getTodayRiddleIndex();
-    const title = `🗣️ WhereSpoken #${riddleIndex}`;
-    const emojis = this.historyEmojis().join('');
-    return `${title}\n${emojis}\n\n${environment.gameUrl}`;
+    const dateISO = this.date() ?? new Date().toISOString().slice(0, 10);
+    const riddleIndex = getRiddleIndex(dateISO);
+    const history = this.history();
+    const scores = this.getEffectiveSimilarityScores();
+    const difficulty = this.gameDifficulty();
+
+    const guessCount = history.length;
+    const won = this.gameStatus() === 'WON';
+    const resultText = won ? `${guessCount}/6` : 'X/6';
+
+    // Add difficulty indicator for hard modes
+    const difficultyEmoji = difficulty === 'extreme' ? ' 💀' : difficulty === 'hard' ? ' 🔥' : '';
+
+    const title = `🗣️ WhereSpoken #${riddleIndex} ${resultText}${difficultyEmoji}`;
+
+    // Generate rows for each guess
+    const rows = history.map((result, index) => {
+      const score = scores[index] ?? 0;
+      return this.scoreToEmojiRow(score, result, true);
+    });
+
+    return `${title}\n${rows.join('\n')}\n\n${environment.gameUrl}`;
   }
 
   share(): void {

@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { GameStatus as RiddleGameStatus, GuessResult } from './riddle/riddle';
+import { DifficultyMode } from './settings.service';
 
 export interface SavedGameState {
   stage: number;
@@ -7,6 +8,10 @@ export interface SavedGameState {
   guessedCodes: string[];
   history: GuessResult[];
   restrictToBase: string | null;
+  /** Similarity scores (0-100) for each guess, added for share text */
+  similarityScores?: number[];
+  /** Difficulty mode the game was played in */
+  difficulty?: DifficultyMode;
 }
 
 export interface DateGameState {
