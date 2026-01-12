@@ -7,7 +7,10 @@
       >
     </div>
     <div class="p-4 text-center">
-      <p class="m-0 text-lg font-medium">Listen and identify the language spoken</p>
+      <p class="m-0 text-lg font-medium">
+        Listen and identify the language spoken. The content does not include intentional hints
+        about the language or country.
+      </p>
     </div>
   </div>
 
@@ -198,7 +201,7 @@
       <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
         <label
           class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
-          >Hint</label
+          >Hint (includes information about the country)</label
         >
         <audio controls [src]="sample().audioHintUrl" class="w-full rounded-lg"></audio>
       </div>
