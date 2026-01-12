@@ -53,7 +53,35 @@ export class LanguageFamilyService {
   private loaded = signal(false);
 
   constructor() {
-    this.loadLanguages();
+    // Call loadLanguages immediately to start loading data
+    void this.loadLanguages();
+  }
+
+  /**
+   * Parse a CSV line handling quoted fields that may contain commas
+   */
+  private parseCsvLine(line: string): string[] {
+    const result: string[] = [];
+    let current = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+
+      if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === ',' && !inQuotes) {
+        result.push(current);
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    
+    // Push the last field
+    result.push(current);
+    
+    return result;
   }
 
   private async loadLanguages(): Promise<void> {
@@ -70,7 +98,8 @@ export class LanguageFamilyService {
         const line = lines[i].trim();
         if (!line) continue;
 
-        const [id, name, iso639P3code, level, parentId] = line.split(',');
+        const fields = this.parseCsvLine(line);
+        const [id, name, iso639P3code, level, parentId] = fields;
 
         const entry: LanguageEntry = {
           id: id?.trim() || '',

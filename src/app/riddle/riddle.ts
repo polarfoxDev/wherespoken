@@ -15,7 +15,7 @@ import { LOCALE_CODES } from '../types/languages';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { map, startWith } from 'rxjs';
-import { getTodayRiddleIndex, getRiddleIndex } from '../consts';
+import { getRiddleIndex } from '../consts';
 import { environment } from '../../environments/environment';
 import { GameState } from '../game-state';
 import { FamilyComparisonResult, LanguageFamilyService } from '../language-family.service';
