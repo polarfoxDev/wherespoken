@@ -39,9 +39,9 @@
             You correctly identified <span class="font-bold">{{ displayLanguage() }}</span
             >!
           </p>
-          <div class="flex gap-1 justify-center mt-4 text-xl">
+          <div class="flex flex-col items-center gap-1 mt-4 text-base">
             @for (emoji of historyEmojis(); track $index) {
-            <span>{{ emoji }}</span>
+            <div>{{ emoji }}</div>
             }
           </div>
           <div class="flex gap-3 justify-center mt-5">
@@ -71,9 +71,9 @@
             The correct language was <span class="font-bold">{{ displayLanguage() }}</span
             >.
           </p>
-          <div class="flex gap-1 justify-center mt-4 text-xl">
+          <div class="flex flex-col items-center gap-1 mt-4 text-base">
             @for (emoji of historyEmojis(); track $index) {
-            <span>{{ emoji }}</span>
+            <div>{{ emoji }}</div>
             }
           </div>
           <div class="flex gap-3 justify-center mt-5">

@@ -16,6 +16,36 @@ export interface FamilyComparisonResult {
   correctAncestry: string[];
 }
 
+/**
+ * Fallback mappings for ISO 639-3 codes that differ between the langs library
+ * and Glottolog. The `langs` library returns macrolanguage codes while
+ * Glottolog uses individual language codes.
+ */
+const ISO639_3_FALLBACKS: Record<string, string> = {
+  // Serbian/Croatian/Bosnian -> Serbo-Croatian macrolanguage
+  hrv: 'hbs', // Croatian
+  srp: 'hbs', // Serbian
+  bos: 'hbs', // Bosnian
+  // Arabic varieties -> Standard Arabic
+  ara: 'arb', // Standard Arabic
+  // Chinese -> Mandarin Chinese
+  zho: 'cmn', // Chinese -> Mandarin
+  // Azerbaijani -> North Azerbaijani (most common)
+  aze: 'azj', // Azerbaijani -> North Azerbaijani
+  // Estonian macrolanguage -> Estonian
+  est: 'ekk', // Estonian
+  // Malagasy macrolanguage -> Plateau Malagasy (standard)
+  mlg: 'plt', // Malagasy -> Plateau Malagasy
+  // Malay macrolanguage -> Standard Malay
+  msa: 'zsm', // Malay -> Standard Malay
+  // Oriya macrolanguage -> Odia
+  ori: 'ory', // Oriya -> Odia
+  // Persian macrolanguage -> Western Farsi
+  fas: 'pes', // Persian/Farsi -> Western Farsi
+  // Swahili macrolanguage -> Swahili
+  swa: 'swh', // Swahili
+};
+
 @Injectable({ providedIn: 'root' })
 export class LanguageFamilyService {
   private languageMap = signal<Map<string, LanguageEntry>>(new Map());
@@ -126,10 +156,21 @@ export class LanguageFamilyService {
       };
     }
 
-    // Get language IDs from ISO codes
+    // Get language IDs from ISO codes, with fallback for macrolanguages
     const isoMap = this.iso639ToIdMap();
-    const guessId = isoMap.get(guessIso);
-    const correctId = isoMap.get(correctIso);
+    let guessId = isoMap.get(guessIso);
+    let correctId = isoMap.get(correctIso);
+    let usedFallback = false;
+
+    // Try fallback codes if not found
+    if (!guessId && ISO639_3_FALLBACKS[guessIso]) {
+      guessId = isoMap.get(ISO639_3_FALLBACKS[guessIso]);
+      usedFallback = true;
+    }
+    if (!correctId && ISO639_3_FALLBACKS[correctIso]) {
+      correctId = isoMap.get(ISO639_3_FALLBACKS[correctIso]);
+      usedFallback = true;
+    }
 
     if (!guessId || !correctId) {
       return {
@@ -137,6 +178,18 @@ export class LanguageFamilyService {
         distanceScore: 0,
         guessAncestry: [],
         correctAncestry: [],
+      };
+    }
+
+    // If both map to the same language via fallback but original codes differ,
+    // treat as 99% (same macrolanguage, different variety - like BASE_MATCH)
+    if (usedFallback && guessId === correctId && guessIso !== correctIso) {
+      const ancestry = this.getAncestry(guessId);
+      return {
+        commonAncestor: ancestry[0] || null,
+        distanceScore: 99,
+        guessAncestry: ancestry,
+        correctAncestry: ancestry,
       };
     }
 
