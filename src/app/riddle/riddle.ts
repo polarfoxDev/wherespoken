@@ -280,7 +280,7 @@ export class Riddle {
 
   private getShareText(): string {
     const riddleIndex = getTodayRiddleIndex();
-    const title = `🗣️ WhereSpoken #${riddleIndex + 1}`;
+    const title = `🗣️ WhereSpoken #${riddleIndex}`;
     const emojis = this.historyEmojis().join('');
     return `${title}\n${emojis}\n\n${environment.gameUrl}`;
   }
