@@ -38,7 +38,7 @@ export class Riddle {
   private settingsService = inject(SettingsService);
 
   // Game state signals (declared early so they can be used in computed)
-  stage = signal(0); // 0: Audio, 1: Text, 2: Trans, 3: HintAudio, 4: HintText, 5: HintTrans
+  stage = signal(0); // 0: Audio, 1: Trans, 2: Text, 3: HintAudio, 4: HintText, 5: HintTrans
   gameStatus = signal<GameStatus>('PLAYING');
   showDropdown = signal(false);
   restrictToBase = signal<string | null>(null);
@@ -64,7 +64,43 @@ export class Riddle {
   );
 
   /** Whether hints should be shown based on effective difficulty */
-  showHints = computed(() => this.difficulty() === 'normal');
+  showHints = computed(() => this.difficulty() !== 'extreme');
+
+  /** Whether broad country hints should be shown (only in normal mode) */
+  showCountryHints = computed(() => this.difficulty() === 'normal');
+
+  // Hint specific visibility signals
+  showTranscriptTranslation = computed(() => {
+    if (this.difficulty() === 'normal') return this.stage() >= 1;
+    if (this.difficulty() === 'hard') return this.stage() >= 3;
+    return false;
+  });
+
+  showTranscript = computed(() => {
+    if (this.difficulty() === 'normal') return this.stage() >= 2;
+    if (this.difficulty() === 'hard') return this.stage() >= 5;
+    return false;
+  });
+
+  showHintAudio = computed(() => this.showCountryHints() && this.stage() >= 3);
+  showHintText = computed(() => this.showCountryHints() && this.stage() >= 4);
+  showHintTranslation = computed(() => this.showCountryHints() && this.stage() >= 5);
+
+  visibleHintsCount = computed(() => {
+    let count = 0;
+    if (this.showTranscriptTranslation()) count++;
+    if (this.showTranscript()) count++;
+    if (this.showHintAudio()) count++;
+    if (this.showHintText()) count++;
+    if (this.showHintTranslation()) count++;
+    return count;
+  });
+
+  totalAvailableHints = computed(() => {
+    if (this.difficulty() === 'normal') return 5;
+    if (this.difficulty() === 'hard') return 2;
+    return 0;
+  });
 
   /** Whether ancestry should be shown based on effective difficulty */
   showAncestry = computed(() => this.difficulty() !== 'extreme');
@@ -79,7 +115,7 @@ export class Riddle {
     return d === 'normal'
       ? 'Hints & ancestry shown'
       : d === 'hard'
-      ? 'No hints, ancestry shown'
+      ? 'Delayed transcript/translation, no country hints'
       : 'No hints or ancestry';
   });
 
@@ -225,7 +261,7 @@ export class Riddle {
     // Highlight non-English alphabet characters for Latin-based scripts with special chars
     // [a-zA-Z] + common punctuation + whitespace allowed, wrap others
     const content = text.replace(/[^a-zA-Z0-9\s.,!?'"():;\-\–]/g, (match) => {
-      return `<span class="bg-solution-brightest dark:bg-solution font-bold px-0.5 rounded">${match}</span>`;
+      return `<span class="bg-solution-brightest dark:bg-solution px-0.5 rounded">${match}</span>`;
     });
     return this.sanitizer.bypassSecurityTrustHtml(content);
   });

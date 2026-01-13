@@ -166,14 +166,17 @@
           <div class="flex justify-between items-center mt-3 text-sm">
             <span class="text-text/60 dark:text-text-inverse/60">
               @if (history().length > 0) { Guesses: {{ history().length }}/6 @if (showHints() &&
-              stage() > 0) { · Hints: {{ stage() }}/5 } } @else if (!showHints()) {
-              {{ difficultyLabel() }} mode }
+              visibleHintsCount() < totalAvailableHints()) { · Hints: {{ visibleHintsCount() }}/{{
+                totalAvailableHints()
+              }}
+              } } @else if (!showHints()) { {{ difficultyLabel() }} mode }
             </span>
 
-            @if (showHints() && stage() < 5) {
-            <span class="font-medium text-accent dark:text-accent-bright"
-              >Wrong guess reveals the next hint</span
-            >
+            @if (showHints() && visibleHintsCount() < totalAvailableHints()) {
+            <span class="font-medium text-accent dark:text-accent-bright">
+              @if (difficulty() === 'hard') { More hints available later } @else { Wrong guess
+              reveals the next hint }
+            </span>
             }
           </div>
         </div>
@@ -228,7 +231,7 @@
       }
 
       <!-- Stage 5: Hint Translation -->
-      @if (showHints() && stage() >= 5 && sample().hintEnglishTranslation) {
+      @if (showHintTranslation() && sample().hintEnglishTranslation) {
       <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
         <label
           class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
@@ -241,7 +244,7 @@
       }
 
       <!-- Stage 4: Text Hint -->
-      @if (showHints() && stage() >= 4) {
+      @if (showHintText()) {
       <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
         <label
           class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
@@ -256,7 +259,7 @@
       }
 
       <!-- Stage 3: Audio Hint -->
-      @if (showHints() && stage() >= 3) {
+      @if (showHintAudio()) {
       <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
         <label
           class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
@@ -266,21 +269,8 @@
       </div>
       }
 
-      <!-- Stage 2: Translation -->
-      @if (showHints() && stage() >= 2) {
-      <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
-        <label
-          class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
-          >Transcript Translation</label
-        >
-        <div class="p-4 rounded-xl m-0 bg-accent/10 text-accent dark:text-accent-bright">
-          "{{ sample().englishTranslation }}"
-        </div>
-      </div>
-      }
-
-      <!-- Stage 1: Text -->
-      @if (showHints() && stage() >= 1) {
+      <!-- Transcript -->
+      @if (showTranscript()) {
       <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
         <label
           class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
@@ -290,6 +280,19 @@
           class="p-5 rounded-xl border-l-4 border-solution bg-white dark:bg-white/5 text-lg leading-relaxed"
           [innerHTML]="highlightedText()"
         ></div>
+      </div>
+      }
+
+      <!-- Transcript Translation -->
+      @if (showTranscriptTranslation()) {
+      <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
+        <label
+          class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
+          >English Translation of Transcript</label
+        >
+        <div class="p-4 rounded-xl m-0 bg-accent/10 text-accent dark:text-accent-bright">
+          "{{ sample().englishTranslation }}"
+        </div>
       </div>
       }
     </div>
