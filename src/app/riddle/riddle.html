@@ -237,7 +237,7 @@
           class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
           >Hint Transcript Translation</label
         >
-        <p class="p-4 rounded-xl m-0 bg-accent/10 text-accent dark:text-accent-bright">
+        <p dir="auto" class="p-4 rounded-xl m-0 bg-accent/10 text-accent dark:text-accent-bright">
           "{{ sample().hintEnglishTranslation }}"
         </p>
       </div>
@@ -251,6 +251,7 @@
           >Hint Transcript</label
         >
         <p
+          dir="auto"
           class="p-5 rounded-xl border-l-4 border-solution bg-white dark:bg-white/5 leading-relaxed"
         >
           {{ sample().hint }}
@@ -277,6 +278,7 @@
           >Transcript</label
         >
         <div
+          dir="auto"
           class="p-5 rounded-xl border-l-4 border-solution bg-white dark:bg-white/5 text-lg leading-relaxed"
           [innerHTML]="highlightedText()"
         ></div>
@@ -290,7 +292,7 @@
           class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
           >English Translation of Transcript</label
         >
-        <div class="p-4 rounded-xl m-0 bg-accent/10 text-accent dark:text-accent-bright">
+        <div dir="auto" class="p-4 rounded-xl m-0 bg-accent/10 text-accent dark:text-accent-bright">
           "{{ sample().englishTranslation }}"
         </div>
       </div>
