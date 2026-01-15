@@ -1,7 +1,7 @@
 {
   "CORSRules": [
     {
-      "AllowedOrigins": ["http://localhost:4200", "https://wherespoken.games.polarnight.eu"],
+      "AllowedOrigins": ["http://localhost:4200", "https://wherespoken.polarcade.eu"],
       "AllowedMethods": ["GET", "PUT", "POST"],
       "AllowedHeaders": [
         "Authorization",
