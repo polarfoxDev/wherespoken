@@ -373,18 +373,26 @@ export class Riddle {
       return forShare ? '🟩🟩🟩🟩🟩🎉' : '🟩🟩🟩🟩🟩';
     }
 
-    // For wrong guesses, show similarity as filled green squares
-    // Each square represents 20%
-    const filledCount = Math.round(score / 20);
-    const filled = '🟩'.repeat(filledCount);
-    const empty = '⬛'.repeat(5 - filledCount);
+    // For wrong guesses, show similarity as a combination of:
+    // - full green squares (each full 20%)
+    // - one yellow square if there is a partial remainder (<20%)
+    // - black squares for the remainder up to 5 squares
+    // This ensures the final (5th) square is only green at 100%.
+    const fullCount = Math.floor(score / 20);
+    const remainder = score - fullCount * 20;
+    // Only show a yellow square for a meaningful partial increase (>=5 percentage points)
+    const hasPartial = remainder >= 5 && remainder < 20 && fullCount < 5;
+
+    const greens = '🟩'.repeat(fullCount);
+    const yellow = hasPartial ? '🟨' : '';
+    const blacks = '⬛'.repeat(5 - fullCount - (hasPartial ? 1 : 0));
 
     // Add ❌ for LOST on last guess (only in share text)
     if (result === 'LOST' && forShare) {
-      return filled + empty + '❌';
+      return greens + yellow + blacks + '❌';
     }
 
-    return filled + empty;
+    return greens + yellow + blacks;
   }
 
   /**
