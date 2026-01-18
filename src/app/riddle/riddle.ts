@@ -269,10 +269,14 @@ export class Riddle {
   highlightedText = computed((): SafeHtml => {
     const text = this.sample().text;
 
-    // Check if text contains Latin letters - if not, it's a completely different script
-    const hasLatinLetters = /[a-zA-Z]/.test(text);
-    if (!hasLatinLetters) {
-      // Don't highlight for non-Latin scripts (Arabic, Chinese, etc.)
+    // Check if Latin letters make up a relevant portion of the text
+    // If less than 15%, it's likely a non-Latin script (Arabic, Chinese, etc.)
+    const letterCount = (text.match(/[a-zA-Z]/g) || []).length;
+    const textLength = text.replace(/\s/g, '').length; // Exclude whitespace from count
+    const latinPercentage = textLength > 0 ? (letterCount / textLength) * 100 : 0;
+
+    if (latinPercentage < 15) {
+      // Don't highlight for non-Latin scripts
       return this.sanitizer.bypassSecurityTrustHtml(text);
     }
 
