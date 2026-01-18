@@ -54,9 +54,16 @@
         <div class="font-semibold mb-2">Ancestry Tree</div>
         <div class="ancestry-tree text-sm">
           <!-- Shared ancestry path (from root to common ancestor) -->
-          @for (ancestor of sharedPath(); track ancestor; let isLast = $last) {
+          @for (
+            ancestor of sharedPath();
+            track ancestor;
+            let isLast = $last;
+            let isFirst = $first
+          ) {
             <div class="tree-node">
-              <span class="tree-branch">→</span>
+              @if (!isFirst) {
+                <span class="tree-branch">→</span>
+              }
               <span [class.font-bold]="isLast && familyComparisonResult()!.commonAncestor">
                 {{ ancestor }}
               </span>
@@ -68,9 +75,16 @@
             <div class="tree-branches">
               <div class="tree-branch-col">
                 <div class="tree-branch-label">Your guess</div>
-                @for (ancestor of guessOnlyPath(); track ancestor; let isLast = $last) {
+                @for (
+                  ancestor of guessOnlyPath();
+                  track ancestor;
+                  let isLast = $last;
+                  let isFirst = $first
+                ) {
                   <div class="tree-node">
-                    <span class="tree-branch">→</span>
+                    @if (!isFirst || familyComparisonResult()!.commonAncestor) {
+                      <span class="tree-branch">→</span>
+                    }
                     <span [class.font-bold]="isLast">{{ ancestor }}</span>
                   </div>
                 }
@@ -84,8 +98,12 @@
                   let isLast = $last
                 ) {
                   <div class="tree-node">
-                    <span class="tree-branch">→</span>
-                    <span [class.font-bold]="isLast">{{ ancestor }}</span>
+                    @if (!isFirst || familyComparisonResult()!.commonAncestor) {
+                      <span class="tree-branch">→</span>
+                    }
+                    <span [class.font-bold]="isLast">
+                      {{ isFirst && !familyComparisonResult()!.commonAncestor ? ancestor : '•••' }}
+                    </span>
                   </div>
                 }
               </div>
