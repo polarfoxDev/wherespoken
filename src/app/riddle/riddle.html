@@ -29,25 +29,15 @@
     </button>
   </div>
 
-  <!-- Header card like strangui -->
-  <div class="rounded-2xl overflow-hidden border-2 border-guess mb-5">
-    <div class="bg-guess py-2 px-4 text-center">
-      <span class="text-xs font-bold uppercase tracking-widest text-text-inverse/90"
-        >Guess the Language</span
-      >
-    </div>
-    <div class="p-4 text-center">
-      <p class="m-0 text-lg font-medium">
-        Listen and identify both the language spoken and the country of the speaker. The content
-        does not contain any intentional clues about the language or country.
-      </p>
-    </div>
-  </div>
-
   <div
-    class="rounded-2xl shadow-lg border border-black/5 dark:border-white/10 bg-white dark:bg-white/5"
+    class="animate-in rounded-2xl shadow-lg border border-black/5 dark:border-white/10 bg-white dark:bg-white/5"
   >
     <div class="p-6 flex flex-col gap-5">
+      <div class="text-center text-text/70 dark:text-text-inverse/70">
+        🎧 Listen and identify both the language spoken and the country of the speaker. The content
+        does not contain any intentional clues about the language or country.
+      </div>
+
       <!-- Stage 0: Audio -->
       <div class="p-4 rounded-xl bg-black/3 dark:bg-white/5">
         <label
@@ -192,22 +182,10 @@
       <!-- Feedback Message -->
       @if (feedbackMessage()) {
         <div
-          class="animate-in flex flex-col gap-2 p-4 rounded-xl text-sm font-medium"
-          [class]="
-            feedbackMessage()?.type === 'error'
-              ? 'bg-warn/10 text-warn dark:text-warn-bright'
-              : 'bg-accent/10 text-accent dark:text-accent-bright'
-          "
+          class="animate-in flex flex-col gap-2 p-4 rounded-xl text-sm font-medium bg-warn/10 text-warn dark:text-warn-bright"
         >
           <div class="flex items-center gap-3">
-            <span class="text-xl">
-              @if (feedbackMessage()?.type === 'error') {
-                🚫
-              }
-              @if (feedbackMessage()?.type === 'warning') {
-                ⚠️
-              }
-            </span>
+            <span class="text-xl"> 🚫 </span>
             <span>{{ feedbackMessage()?.text }}</span>
           </div>
           @if (showAncestry() && feedbackMessage()?.familyComparison; as fc) {

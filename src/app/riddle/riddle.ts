@@ -24,7 +24,7 @@ import langs from 'langs';
 import { Ancestry } from '../ancestry/ancestry';
 
 export type GameStatus = 'PLAYING' | 'WON' | 'LOST';
-export type GuessResult = 'WRONG' | 'BASE_MATCH' | 'CORRECT' | 'LOST';
+export type GuessResult = 'WRONG' | 'CORRECT' | 'LOST';
 
 @Component({
   selector: 'app-riddle',
@@ -49,7 +49,6 @@ export class Riddle {
   /** Difficulty at time game was started (locked after first guess) */
   gameDifficulty = signal<DifficultyMode>('normal');
   feedbackMessage = signal<{
-    type: 'error' | 'warning';
     text: string;
     familyComparison?: FamilyComparisonResult;
   } | null>(null);
@@ -326,10 +325,12 @@ export class Riddle {
         this.guessedCodes.update((c) => [...c, matchedOption.code]);
         this.history.update((h) => [...h, 'WRONG']);
         this.similarityScores.update((s) => [...s, score]);
-        this.feedbackMessage.set({
-          type: 'error',
-          text: matchedOption.label + ': Incorrect guess.',
-          familyComparison: familyComparison ?? undefined,
+        this.feedbackMessage.set(null);
+        setTimeout(() => {
+          this.feedbackMessage.set({
+            text: matchedOption.label + ': Incorrect guess.',
+            familyComparison: familyComparison ?? undefined,
+          });
         });
         this.guessLabel.set(matchedOption.label);
         this.guessControl.setValue('');
@@ -372,11 +373,6 @@ export class Riddle {
       return forShare ? '🟩🟩🟩🟩🟩🎉' : '🟩🟩🟩🟩🟩';
     }
 
-    // Special case: base match (correct language, wrong region) - use yellow
-    if (result === 'BASE_MATCH') {
-      return '🟨🟨🟨🟨🟨';
-    }
-
     // For wrong guesses, show similarity as filled green squares
     // Each square represents 20%
     const filledCount = Math.round(score / 20);
@@ -409,7 +405,6 @@ export class Riddle {
 
     return history.map((result, index) => {
       if (result === 'CORRECT') return 100;
-      if (result === 'BASE_MATCH') return 99;
       if (result === 'LOST') {
         // For LOST, check if it was a base match or wrong
         const guessCode = guessedCodes[index];
