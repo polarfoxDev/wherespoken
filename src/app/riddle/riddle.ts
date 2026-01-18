@@ -20,13 +20,15 @@ import { environment } from '../../environments/environment';
 import { GameState } from '../game-state';
 import { FamilyComparisonResult, LanguageFamilyService } from '../language-family.service';
 import { DifficultyMode, SettingsService } from '../settings.service';
+import langs from 'langs';
+import { Ancestry } from '../ancestry/ancestry';
 
 export type GameStatus = 'PLAYING' | 'WON' | 'LOST';
-export type GuessResult = 'WRONG' | 'BASE_MATCH' | 'CORRECT' | 'LOST';
+export type GuessResult = 'WRONG' | 'CORRECT' | 'LOST';
 
 @Component({
   selector: 'app-riddle',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, Ancestry],
   templateUrl: './riddle.html',
   styleUrl: './riddle.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,17 +43,19 @@ export class Riddle {
   stage = signal(0); // 0: Audio, 1: Trans, 2: Text, 3: HintAudio, 4: HintText, 5: HintTrans
   gameStatus = signal<GameStatus>('PLAYING');
   showDropdown = signal(false);
-  restrictToBase = signal<string | null>(null);
   guessedCodes = signal<string[]>([]);
   history = signal<GuessResult[]>([]);
   similarityScores = signal<number[]>([]);
   /** Difficulty at time game was started (locked after first guess) */
   gameDifficulty = signal<DifficultyMode>('normal');
   feedbackMessage = signal<{
-    type: 'error' | 'warning';
     text: string;
     familyComparison?: FamilyComparisonResult;
   } | null>(null);
+  guessLabel = signal<string>('');
+  availableLocales = signal<{ code: string; label: string }[]>(
+    LOCALE_CODES.map((code) => ({ code, label: code })),
+  );
 
   /** Whether the game has started (first guess made) - locks difficulty */
   gameStarted = computed(() => this.history().length > 0);
@@ -60,7 +64,7 @@ export class Riddle {
    * Effective difficulty: use gameDifficulty when game started, otherwise global setting
    */
   difficulty = computed(() =>
-    this.gameStarted() ? this.gameDifficulty() : this.settingsService.difficulty()
+    this.gameStarted() ? this.gameDifficulty() : this.settingsService.difficulty(),
   );
 
   /** Whether hints should be shown based on effective difficulty */
@@ -115,8 +119,8 @@ export class Riddle {
     return d === 'normal'
       ? 'Hints & ancestry shown'
       : d === 'hard'
-      ? 'Delayed transcript/translation, no country hints'
-      : 'No hints or ancestry';
+        ? 'Reduced hints and ancestry'
+        : 'No hints or ancestry';
   });
 
   toggleDifficulty(): void {
@@ -134,9 +138,9 @@ export class Riddle {
   private guessValue = toSignal(
     this.guessControl.valueChanges.pipe(
       startWith(''),
-      map((v) => v || '')
+      map((v) => v || ''),
     ),
-    { initialValue: '' }
+    { initialValue: '' },
   );
 
   constructor() {
@@ -149,7 +153,6 @@ export class Riddle {
         this.gameStatus.set(savedState.gameStatus);
         this.guessedCodes.set(savedState.guessedCodes);
         this.history.set(savedState.history);
-        this.restrictToBase.set(savedState.restrictToBase);
         this.similarityScores.set(savedState.similarityScores ?? []);
         this.gameDifficulty.set(savedState.difficulty ?? 'normal');
       } else {
@@ -158,11 +161,11 @@ export class Riddle {
         this.gameStatus.set('PLAYING');
         this.guessedCodes.set([]);
         this.history.set([]);
-        this.restrictToBase.set(null);
         this.similarityScores.set([]);
         this.gameDifficulty.set(this.difficulty());
       }
       this.feedbackMessage.set(null);
+      this.guessLabel.set('');
       this.guessControl.setValue('');
     });
 
@@ -172,7 +175,6 @@ export class Riddle {
       const gameStatus = this.gameStatus();
       const guessedCodes = this.guessedCodes();
       const history = this.history();
-      const restrictToBase = this.restrictToBase();
       const similarityScores = this.similarityScores();
       const difficulty = this.gameDifficulty();
       const dateISO = untracked(() => this.date()) ?? new Date().toISOString().slice(0, 10);
@@ -184,10 +186,44 @@ export class Riddle {
           gameStatus,
           guessedCodes,
           history,
-          restrictToBase,
           similarityScores,
           difficulty,
         });
+      }
+    });
+
+    // Prepare available locales for dropdown
+    effect(() => {
+      const languagesLoaded = this.languageFamilyService.isLoaded();
+      if (languagesLoaded) {
+        const dn = new Intl.DisplayNames(['en'], { type: 'language' });
+        this.availableLocales.set(
+          LOCALE_CODES.map((code) => {
+            let label = code;
+            try {
+              label = dn.of(code) || code;
+            } catch (e) {
+              label = code;
+            }
+            if (label.startsWith(`${code.split('-')[0]} (`)) {
+              // If label is like "xx (Language Name)", inject language name from langs library but keep region
+              const name =
+                langs.where('1', new Intl.Locale(code).language)?.name ||
+                this.languageFamilyService.getLanguage(new Intl.Locale(code).language)?.name ||
+                code;
+              label = name + label.slice(label.indexOf(' ('));
+              // remove second block in parentheses if it exists
+              const parenIndex = label.indexOf(' (');
+              const secondParenIndex = label.indexOf(' (', parenIndex + 1);
+              if (secondParenIndex !== -1) {
+                label =
+                  label.slice(0, secondParenIndex) +
+                  label.slice(label.indexOf(')', secondParenIndex) + 1);
+              }
+            }
+            return { code, label };
+          }),
+        );
       }
     });
   }
@@ -204,28 +240,10 @@ export class Riddle {
 
   // Mapped options
   localeOptions = computed(() => {
-    const dn = new Intl.DisplayNames(['en'], { type: 'language' });
-    const restriction = this.restrictToBase();
     const guesses = this.guessedCodes();
 
-    return LOCALE_CODES.filter((code) => {
-      if (guesses.includes(code)) return false;
-      if (!restriction) return true;
-      try {
-        return new Intl.Locale(code).language === restriction;
-      } catch {
-        return false;
-      }
-    })
-      .map((code) => {
-        let label = code;
-        try {
-          label = dn.of(code) || code;
-        } catch (e) {
-          // Fallback if code is invalid
-        }
-        return { code, label };
-      })
+    return this.availableLocales()
+      .filter((lang) => !guesses.includes(lang.code))
       .sort((a, b) => a.label.localeCompare(b.label));
   });
 
@@ -234,7 +252,7 @@ export class Riddle {
     const options = this.localeOptions();
     if (!guess) return options;
     return options.filter(
-      (o) => o.label.toLowerCase().includes(guess) || o.code.toLowerCase().includes(guess)
+      (o) => o.label.toLowerCase().includes(guess) || o.code.toLowerCase().includes(guess),
     );
   });
 
@@ -281,76 +299,40 @@ export class Riddle {
     }
 
     const sampleCode = this.sample().language;
-    let sampleBase = sampleCode;
-    try {
-      sampleBase = new Intl.Locale(sampleCode).language;
-    } catch (e) {}
 
-    let isBaseMatch = false;
-    let isExactMatch = false;
-
-    // User selected a specific locale
-    const guessedCode = matchedOption.code;
-    let guessedBase = guessedCode;
-    try {
-      guessedBase = new Intl.Locale(guessedCode).language;
-    } catch (e) {}
-
-    if (guessedCode === sampleCode) {
-      isExactMatch = true;
-      isBaseMatch = true; // Implicitly
-    } else if (guessedBase === sampleBase) {
-      isBaseMatch = true;
-    }
-
-    // Check for Game Over condition BEFORE processing current guess logic
-    // Actually, we process current guess. If wrong and stage is 5, then LOST.
-
-    if (isExactMatch) {
+    if (matchedOption.code === sampleCode) {
       this.gameStatus.set('WON');
       this.history.update((h) => [...h, 'CORRECT']);
       this.similarityScores.update((s) => [...s, 100]);
       this.feedbackMessage.set(null);
+      this.guessLabel.set('');
       this.stage.set(5);
-    } else if (isBaseMatch) {
-      if (this.stage() === 5) {
-        this.gameStatus.set('LOST');
-        this.history.update((h) => [...h, 'LOST']);
-        this.similarityScores.update((s) => [...s, 99]); // Very close - right language, wrong region
-        this.feedbackMessage.set(null);
-      } else {
-        // Wrong region, but correct base language.
-        // Count as wrong, but restrict options.
-        this.restrictToBase.set(sampleBase);
-        this.guessedCodes.update((c) => [...c, guessedCode]);
-        this.history.update((h) => [...h, 'BASE_MATCH']);
-        this.similarityScores.update((s) => [...s, 99]); // Very close - right language, wrong region
-        this.feedbackMessage.set({
-          type: 'warning',
-          text: 'Close! Correct language, wrong region.',
-        });
-        this.guessControl.setValue('');
-        this.nextHint();
-      }
     } else {
       // Calculate family comparison for wrong guesses
-      const familyComparison = this.languageFamilyService.compareFamilies(guessedCode, sampleCode);
-      const score = familyComparison.distanceScore;
+      const familyComparison = this.languageFamilyService.compareFamilies(
+        matchedOption.code,
+        sampleCode,
+      );
+      const score = familyComparison?.distanceScore ?? 0;
 
       if (this.stage() === 5) {
         this.gameStatus.set('LOST');
         this.history.update((h) => [...h, 'LOST']);
         this.similarityScores.update((s) => [...s, score]);
         this.feedbackMessage.set(null);
+        this.guessLabel.set('');
       } else {
-        this.guessedCodes.update((c) => [...c, guessedCode]);
+        this.guessedCodes.update((c) => [...c, matchedOption.code]);
         this.history.update((h) => [...h, 'WRONG']);
         this.similarityScores.update((s) => [...s, score]);
-        this.feedbackMessage.set({
-          type: 'error',
-          text: 'Incorrect guess.',
-          familyComparison,
+        this.feedbackMessage.set(null);
+        setTimeout(() => {
+          this.feedbackMessage.set({
+            text: matchedOption.label + ': Incorrect guess.',
+            familyComparison: familyComparison ?? undefined,
+          });
         });
+        this.guessLabel.set(matchedOption.label);
         this.guessControl.setValue('');
         this.nextHint();
       }
@@ -391,23 +373,26 @@ export class Riddle {
       return forShare ? '🟩🟩🟩🟩🟩🎉' : '🟩🟩🟩🟩🟩';
     }
 
-    // Special case: base match (correct language, wrong region) - use yellow
-    if (result === 'BASE_MATCH') {
-      return '🟨🟨🟨🟨🟨';
-    }
+    // For wrong guesses, show similarity as a combination of:
+    // - full green squares (each full 20%)
+    // - one yellow square if there is a partial remainder (<20%)
+    // - black squares for the remainder up to 5 squares
+    // This ensures the final (5th) square is only green at 100%.
+    const fullCount = Math.floor(score / 20);
+    const remainder = score - fullCount * 20;
+    // Only show a yellow square for a meaningful partial increase (>=5 percentage points)
+    const hasPartial = remainder >= 5 && remainder < 20 && fullCount < 5;
 
-    // For wrong guesses, show similarity as filled green squares
-    // Each square represents 20%
-    const filledCount = Math.round(score / 20);
-    const filled = '🟩'.repeat(filledCount);
-    const empty = '⬛'.repeat(5 - filledCount);
+    const greens = '🟩'.repeat(fullCount);
+    const yellow = hasPartial ? '🟨' : '';
+    const blacks = '⬛'.repeat(5 - fullCount - (hasPartial ? 1 : 0));
 
     // Add ❌ for LOST on last guess (only in share text)
     if (result === 'LOST' && forShare) {
-      return filled + empty + '❌';
+      return greens + yellow + blacks + '❌';
     }
 
-    return filled + empty;
+    return greens + yellow + blacks;
   }
 
   /**
@@ -428,13 +413,12 @@ export class Riddle {
 
     return history.map((result, index) => {
       if (result === 'CORRECT') return 100;
-      if (result === 'BASE_MATCH') return 99;
       if (result === 'LOST') {
         // For LOST, check if it was a base match or wrong
         const guessCode = guessedCodes[index];
         if (guessCode) {
           const comparison = this.languageFamilyService.compareFamilies(guessCode, sampleCode);
-          return comparison.distanceScore;
+          return comparison?.distanceScore ?? 0;
         }
         return 0;
       }
@@ -442,7 +426,7 @@ export class Riddle {
       const guessCode = guessedCodes[index];
       if (guessCode) {
         const comparison = this.languageFamilyService.compareFamilies(guessCode, sampleCode);
-        return comparison.distanceScore;
+        return comparison?.distanceScore ?? 0;
       }
       return 0;
     });

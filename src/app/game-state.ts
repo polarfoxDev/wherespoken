@@ -7,7 +7,6 @@ export interface SavedGameState {
   gameStatus: RiddleGameStatus;
   guessedCodes: string[];
   history: GuessResult[];
-  restrictToBase: string | null;
   /** Similarity scores (0-100) for each guess, added for share text */
   similarityScores?: number[];
   /** Difficulty mode the game was played in */

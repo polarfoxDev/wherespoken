@@ -1,0 +1,36 @@
+.ancestry-tree {
+  font-family: monospace;
+}
+
+.tree-node {
+  line-height: 1.5;
+}
+
+.tree-branch {
+  margin-right: 0.5rem;
+  opacity: 0.5;
+}
+
+.tree-branches {
+  display: flex;
+  gap: 2rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed currentColor;
+}
+
+.tree-branch-col {
+  overflow: hidden;
+}
+
+.tree-branch-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+  opacity: 0.7;
+}
+
+.chev.rotated {
+  transform: rotate(-180deg);
+}
