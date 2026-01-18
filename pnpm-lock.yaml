@@ -26,6 +26,51 @@ importers:
       '@angular/router':
         specifier: ^21.0.0
         version: 21.0.8(@angular/common@21.0.8(@angular/core@21.0.8(@angular/compiler@21.0.8)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.0.8(@angular/compiler@21.0.8)(rxjs@7.8.2))(@angular/platform-browser@21.0.8(@angular/common@21.0.8(@angular/core@21.0.8(@angular/compiler@21.0.8)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.0.8(@angular/compiler@21.0.8)(rxjs@7.8.2)))(rxjs@7.8.2)
+      '@fontsource/noto-sans':
+        specifier: ^5.2.10
+        version: 5.2.10
+      '@fontsource/noto-sans-arabic':
+        specifier: ^5.2.10
+        version: 5.2.10
+      '@fontsource/noto-sans-armenian':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource/noto-sans-bengali':
+        specifier: ^5.2.10
+        version: 5.2.10
+      '@fontsource/noto-sans-devanagari':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource/noto-sans-georgian':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource/noto-sans-hebrew':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource/noto-sans-jp':
+        specifier: ^5.2.9
+        version: 5.2.9
+      '@fontsource/noto-sans-kr':
+        specifier: ^5.2.9
+        version: 5.2.9
+      '@fontsource/noto-sans-sc':
+        specifier: ^5.2.9
+        version: 5.2.9
+      '@fontsource/noto-sans-tamil':
+        specifier: ^5.2.7
+        version: 5.2.7
+      '@fontsource/noto-sans-tc':
+        specifier: ^5.2.9
+        version: 5.2.9
+      '@fontsource/noto-sans-telugu':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource/noto-sans-thai':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource/nunito':
+        specifier: ^5.2.7
+        version: 5.2.7
       langs:
         specifier: ^2.0.0
         version: 2.0.0
@@ -869,6 +914,51 @@ packages:
     peerDependenciesMeta:
       '@exodus/crypto':
         optional: true
+
+  '@fontsource/noto-sans-arabic@5.2.10':
+    resolution: {integrity: sha512-Hgj3NwQJ0NquIADW3hFboFjsts4UvEOJQ8tOX0bhQZgpNKHsMawjv/1SZnq0QvRbP6efHTZM/A1k7tdy9S6sbA==}
+
+  '@fontsource/noto-sans-armenian@5.2.8':
+    resolution: {integrity: sha512-aOFFNMHbTDJxXktda/dwK3fc+Li22OflVnvbMzRE0GaPYeFjUwU7u6/BD0BX0EkdWnCeBnaL8vR94ZLt8Rio2Q==}
+
+  '@fontsource/noto-sans-bengali@5.2.10':
+    resolution: {integrity: sha512-H+5ACNzvfgQfOSf8nWWgb9Vv28S/tN4BWchWkZqMw+HSnSqhM23CKjTHU7OUI2A1IgMGFQ/VWQ23S0TOlIfbOQ==}
+
+  '@fontsource/noto-sans-devanagari@5.2.8':
+    resolution: {integrity: sha512-UyCfyCEX2+QVUDQWb9y2MRTg1O3bTcXixzD2xQfapFOtw4hpH1rfDIbTXulZ4SUEsbB/wWeyyEL9b93Nmwd6Gg==}
+
+  '@fontsource/noto-sans-georgian@5.2.8':
+    resolution: {integrity: sha512-oylTMjvNxSZCqbq+0aCto5rjI14Je55scC04DgxQwpReN+ZXe3Kxpv4ATfb61apvlJZkeqTPSazVoRD+rJhbMg==}
+
+  '@fontsource/noto-sans-hebrew@5.2.8':
+    resolution: {integrity: sha512-FN/GDpE709JQN5f7vmqlbIwz2/vAM6ZnXqRsw47Piq731hvti55V/FLbyU2RWUvlis16ezPf0r+zKTjfdeXF/g==}
+
+  '@fontsource/noto-sans-jp@5.2.9':
+    resolution: {integrity: sha512-6yVGiofnrnbiJjU8ch4JGSs2HqyozxMvsVyVmFwOnDH3u//qQKLqmKM4n0lqN0637uaJNzUW9nIJqbbMgHVQzw==}
+
+  '@fontsource/noto-sans-kr@5.2.9':
+    resolution: {integrity: sha512-pbF8F0rUzKkDmnk/KYGAbxjgW4TrIHdFKnV6OQ+kUC9ELCn5utrAURcEgMqq3J9SRX+FvjOz+aBCmfcC8/r7cw==}
+
+  '@fontsource/noto-sans-sc@5.2.9':
+    resolution: {integrity: sha512-bTUIWGBgJDpwi5qAr+x0/lcgv80IHTB9vl6s2f6EymZEa7qYV99yNRBZuKFT+SYDKVunZrjCEhWtpxqmbXWl5Q==}
+
+  '@fontsource/noto-sans-tamil@5.2.7':
+    resolution: {integrity: sha512-9ORanbdYAADV8ZC4g1l1GeVllDQBZ04GGqkki7H0LlO3JIOVA4acFQYKJE4PB0y/qGa6fmnwk8mXy+OwJm9iGA==}
+
+  '@fontsource/noto-sans-tc@5.2.9':
+    resolution: {integrity: sha512-Z+pXTvXYrip79lPV9X1lCYO3UTys55P25VqcifDStIzdZ86I4R6t8dz+NhGd09YdbvHWvOCB5Icw1m7glKHPNQ==}
+
+  '@fontsource/noto-sans-telugu@5.2.8':
+    resolution: {integrity: sha512-CGC8+bjR326wuIMBJZzVDrPISTw10EX0g5N3ngnEV3MX+sN5H/jkfBkVscRyhfUqGXlv8esaNultOakiO6GRpg==}
+
+  '@fontsource/noto-sans-thai@5.2.8':
+    resolution: {integrity: sha512-HUQAxOzclod9PXQx4uMoGRAsor+64snW91QuBg39jT9lbsp7jJx1i3jAtHPJ7mQxHEHnhRjNp54fb8GqPPC6zg==}
+
+  '@fontsource/noto-sans@5.2.10':
+    resolution: {integrity: sha512-J58RVfS/C0Z2VBF+PoU260Tx8cdRGYuS+e3yQe4hYaIYDl0sEVn5CzlLo5zVRvQD0HaIUTV8AZMfqR7rtdEpqQ==}
+
+  '@fontsource/nunito@5.2.7':
+    resolution: {integrity: sha512-pmtBq0H9ex9nk+RtJYEJOD9pag393iHETnl/PVKleF4i06cd0ttngK5ZCTgYb5eOqR3Xdlrjtev8m7bmgYprew==}
 
   '@hono/node-server@1.19.8':
     resolution: {integrity: sha512-0/g2lIOPzX8f3vzW1ggQgvG5mjtFBDBHFAzI5SFAi2DzSqS9luJwqg9T6O/gKYLi+inS7eNxBeIFkkghIPvrMA==}
@@ -3934,6 +4024,36 @@ snapshots:
     optional: true
 
   '@exodus/bytes@1.8.0': {}
+
+  '@fontsource/noto-sans-arabic@5.2.10': {}
+
+  '@fontsource/noto-sans-armenian@5.2.8': {}
+
+  '@fontsource/noto-sans-bengali@5.2.10': {}
+
+  '@fontsource/noto-sans-devanagari@5.2.8': {}
+
+  '@fontsource/noto-sans-georgian@5.2.8': {}
+
+  '@fontsource/noto-sans-hebrew@5.2.8': {}
+
+  '@fontsource/noto-sans-jp@5.2.9': {}
+
+  '@fontsource/noto-sans-kr@5.2.9': {}
+
+  '@fontsource/noto-sans-sc@5.2.9': {}
+
+  '@fontsource/noto-sans-tamil@5.2.7': {}
+
+  '@fontsource/noto-sans-tc@5.2.9': {}
+
+  '@fontsource/noto-sans-telugu@5.2.8': {}
+
+  '@fontsource/noto-sans-thai@5.2.8': {}
+
+  '@fontsource/noto-sans@5.2.10': {}
+
+  '@fontsource/nunito@5.2.7': {}
 
   '@hono/node-server@1.19.8(hono@4.11.3)':
     dependencies:
