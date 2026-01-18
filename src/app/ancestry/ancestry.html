@@ -1,0 +1,118 @@
+@if (familyComparisonResult()) {
+  <div
+    class="flex flex-col justify-between gap-2 mt-2 pt-2 border-t border-current/20 text-xs opacity-90"
+  >
+    <div>
+      @if (familyComparisonResult()!.commonAncestor) {
+        <div class="flex items-center gap-2 mb-1">
+          <span class="font-semibold">Common family:</span>
+          <span>{{ familyComparisonResult()!.commonAncestor }}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="font-semibold">Similarity:</span>
+          <div class="flex-1 h-2 rounded-full bg-current/20 overflow-hidden max-w-32">
+            <div
+              class="h-full bg-current rounded-full transition-all"
+              [style.width.%]="familyComparisonResult()!.distanceScore"
+            ></div>
+          </div>
+          <span>{{ familyComparisonResult()!.distanceScore }}%</span>
+        </div>
+      } @else {
+        <div class="flex items-center gap-2 mb-1">
+          <span class="font-semibold">Root of your guess:</span>
+          <span>{{ familyComparisonResult()!.guessAncestry.at(-1) }}</span>
+        </div>
+        @if (difficulty() === 'normal') {
+          <div class="flex items-center gap-2 mb-1">
+            <span class="font-semibold">Root of correct language:</span>
+            <span>{{ familyComparisonResult()!.correctAncestry.at(-1) }}</span>
+          </div>
+        }
+        <div class="flex items-center gap-2">
+          <span class="font-semibold">Similarity:</span>
+          <div class="flex-1 h-2 rounded-full bg-current/20 overflow-hidden max-w-32">
+            <div
+              class="h-full bg-current rounded-full transition-all"
+              [style.width.%]="familyComparisonResult()!.distanceScore"
+            ></div>
+          </div>
+          <span>{{ familyComparisonResult()!.distanceScore }}%</span>
+        </div>
+      }
+    </div>
+    @if (difficulty() === 'normal') {
+      <div
+        class="mr-2 cursor-pointer border border-current rounded-full w-5 h-5 flex items-center justify-center"
+        (click)="toggleExpanded()"
+      >
+        {{ expanded() ? '▴' : '▾' }}
+      </div>
+    }
+    @if (expanded() && difficulty() === 'normal') {
+      <div class="mt-4 w-full">
+        <div class="font-semibold mb-2">Ancestry Tree</div>
+        <div class="ancestry-tree text-sm">
+          <!-- Shared ancestry path (from root to common ancestor) -->
+          @for (ancestor of sharedPath(); track ancestor; let isLast = $last) {
+            <div class="tree-node">
+              <span class="tree-branch">→</span>
+              <span [class.font-bold]="isLast && familyComparisonResult()!.commonAncestor">
+                {{ ancestor }}
+              </span>
+            </div>
+          }
+
+          <!-- Divergence point: show both branches -->
+          @if (guessOnlyPath().length > 0 || correctOnlyPath().length > 0) {
+            <div class="tree-branches">
+              <div class="tree-branch-col">
+                <div class="tree-branch-label">Your guess</div>
+                @for (ancestor of guessOnlyPath(); track ancestor; let isLast = $last) {
+                  <div class="tree-node">
+                    <span class="tree-branch">→</span>
+                    <span [class.font-bold]="isLast">{{ ancestor }}</span>
+                  </div>
+                }
+              </div>
+              <div class="tree-branch-col opacity-50">
+                <div class="tree-branch-label">Solution</div>
+                @for (
+                  ancestor of correctOnlyPath();
+                  track ancestor;
+                  let isFirst = $first;
+                  let isLast = $last
+                ) {
+                  <div class="tree-node">
+                    <span class="tree-branch">→</span>
+                    <span [class.font-bold]="isLast">{{ ancestor }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Sibling case: identical ancestry, show fake divergence -->
+          @if (areSiblings()) {
+            <div class="tree-branches">
+              <div class="tree-branch-col">
+                <div class="tree-branch-label">Your guess</div>
+                <div class="tree-node">
+                  <span class="tree-branch">→</span>
+                  <span class="font-bold">{{ guessLabel() }}</span>
+                </div>
+              </div>
+              <div class="tree-branch-col opacity-50">
+                <div class="tree-branch-label">Solution</div>
+                <div class="tree-node">
+                  <span class="tree-branch">→</span>
+                  <span class="font-bold">•••</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+}

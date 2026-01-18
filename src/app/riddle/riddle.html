@@ -211,45 +211,11 @@
             <span>{{ feedbackMessage()?.text }}</span>
           </div>
           @if (showAncestry() && feedbackMessage()?.familyComparison; as fc) {
-            <div class="mt-2 pt-2 border-t border-current/20 text-xs opacity-90">
-              @if (fc.commonAncestor) {
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="font-semibold">Common family:</span>
-                  <span>{{ fc.commonAncestor }}</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="font-semibold">Similarity:</span>
-                  <div class="flex-1 h-2 rounded-full bg-current/20 overflow-hidden max-w-32">
-                    <div
-                      class="h-full bg-current rounded-full transition-all"
-                      [style.width.%]="fc.distanceScore"
-                    ></div>
-                  </div>
-                  <span>{{ fc.distanceScore }}%</span>
-                </div>
-              } @else {
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="font-semibold">Root of your guess:</span>
-                  <span>{{ fc.guessAncestry.at(-1) }}</span>
-                </div>
-                @if (difficulty() === 'normal') {
-                  <div class="flex items-center gap-2 mb-1">
-                    <span class="font-semibold">Root of correct language:</span>
-                    <span>{{ fc.correctAncestry.at(-1) }}</span>
-                  </div>
-                }
-                <div class="flex items-center gap-2">
-                  <span class="font-semibold">Similarity:</span>
-                  <div class="flex-1 h-2 rounded-full bg-current/20 overflow-hidden max-w-32">
-                    <div
-                      class="h-full bg-current rounded-full transition-all"
-                      [style.width.%]="fc.distanceScore"
-                    ></div>
-                  </div>
-                  <span>{{ fc.distanceScore }}%</span>
-                </div>
-              }
-            </div>
+            <app-ancestry
+              [familyComparisonResult]="fc"
+              [difficulty]="difficulty()"
+              [guessLabel]="guessLabel()"
+            ></app-ancestry>
           }
         </div>
       }

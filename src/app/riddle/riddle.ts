@@ -21,13 +21,14 @@ import { GameState } from '../game-state';
 import { FamilyComparisonResult, LanguageFamilyService } from '../language-family.service';
 import { DifficultyMode, SettingsService } from '../settings.service';
 import langs from 'langs';
+import { Ancestry } from '../ancestry/ancestry';
 
 export type GameStatus = 'PLAYING' | 'WON' | 'LOST';
 export type GuessResult = 'WRONG' | 'BASE_MATCH' | 'CORRECT' | 'LOST';
 
 @Component({
   selector: 'app-riddle',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, Ancestry],
   templateUrl: './riddle.html',
   styleUrl: './riddle.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,6 +53,7 @@ export class Riddle {
     text: string;
     familyComparison?: FamilyComparisonResult;
   } | null>(null);
+  guessLabel = signal<string>('');
   availableLocales = signal<{ code: string; label: string }[]>(
     LOCALE_CODES.map((code) => ({ code, label: code })),
   );
@@ -118,7 +120,7 @@ export class Riddle {
     return d === 'normal'
       ? 'Hints & ancestry shown'
       : d === 'hard'
-        ? 'Delayed transcript/translation, no country hints'
+        ? 'Reduced hints and ancestry'
         : 'No hints or ancestry';
   });
 
@@ -164,6 +166,7 @@ export class Riddle {
         this.gameDifficulty.set(this.difficulty());
       }
       this.feedbackMessage.set(null);
+      this.guessLabel.set('');
       this.guessControl.setValue('');
     });
 
@@ -303,6 +306,7 @@ export class Riddle {
       this.history.update((h) => [...h, 'CORRECT']);
       this.similarityScores.update((s) => [...s, 100]);
       this.feedbackMessage.set(null);
+      this.guessLabel.set('');
       this.stage.set(5);
     } else {
       // Calculate family comparison for wrong guesses
@@ -317,6 +321,7 @@ export class Riddle {
         this.history.update((h) => [...h, 'LOST']);
         this.similarityScores.update((s) => [...s, score]);
         this.feedbackMessage.set(null);
+        this.guessLabel.set('');
       } else {
         this.guessedCodes.update((c) => [...c, matchedOption.code]);
         this.history.update((h) => [...h, 'WRONG']);
@@ -326,6 +331,7 @@ export class Riddle {
           text: matchedOption.label + ': Incorrect guess.',
           familyComparison: familyComparison ?? undefined,
         });
+        this.guessLabel.set(matchedOption.label);
         this.guessControl.setValue('');
         this.nextHint();
       }
