@@ -9,7 +9,7 @@
           <span>{{ familyComparisonResult()!.commonAncestor }}</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="font-semibold">Similarity:</span>
+          <span class="font-semibold">Shared Heritage:</span>
           <div class="flex-1 h-2 rounded-full bg-current/20 overflow-hidden max-w-32">
             <div
               class="h-full bg-current rounded-full transition-all"
@@ -30,7 +30,7 @@
           </div>
         }
         <div class="flex items-center gap-2">
-          <span class="font-semibold">Similarity:</span>
+          <span class="font-semibold">Shared Heritage:</span>
           <div class="flex-1 h-2 rounded-full bg-current/20 overflow-hidden max-w-32">
             <div
               class="h-full bg-current rounded-full transition-all"
@@ -46,11 +46,25 @@
         class="mr-2 cursor-pointer border border-current rounded-full w-5 h-5 flex items-center justify-center"
         (click)="toggleExpanded()"
       >
-        {{ expanded() ? '▴' : '▾' }}
+        <svg
+          class="chev"
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          [class.rotated]="expanded()"
+        >
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
       </div>
     }
     @if (expanded() && difficulty() === 'normal') {
-      <div class="mt-4 w-full">
+      <div class="mt-2 w-full">
         <div class="font-semibold mb-2">Ancestry Tree</div>
         <div class="ancestry-tree text-sm">
           <!-- Shared ancestry path (from root to common ancestor) -->

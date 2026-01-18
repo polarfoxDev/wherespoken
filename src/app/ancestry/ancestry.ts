@@ -1,4 +1,4 @@
-import { Component, computed, input, signal } from '@angular/core';
+import { Component, computed, effect, input, signal } from '@angular/core';
 import { FamilyComparisonResult } from '../language-family.service';
 
 @Component({
@@ -13,6 +13,14 @@ export class Ancestry {
   guessLabel = input<string>();
 
   expanded = signal(false);
+
+  constructor() {
+    effect(() => {
+      this.familyComparisonResult();
+      this.expanded.set(false);
+      return;
+    });
+  }
 
   /** Shared ancestry path from root to common ancestor (reversed, root first) */
   sharedPath = computed(() => {
