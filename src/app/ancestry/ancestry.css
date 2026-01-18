@@ -4,7 +4,6 @@
 
 .tree-node {
   line-height: 1.5;
-  white-space: nowrap;
 }
 
 .tree-branch {
@@ -21,7 +20,7 @@
 }
 
 .tree-branch-col {
-  flex: 1;
+  overflow: hidden;
 }
 
 .tree-branch-label {
