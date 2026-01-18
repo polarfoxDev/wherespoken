@@ -51,6 +51,7 @@ export class LanguageFamilyService {
   private languageMap = signal<Map<string, LanguageEntry>>(new Map());
   private iso639ToIdMap = signal<Map<string, string>>(new Map());
   private loaded = signal(false);
+  isLoaded = this.loaded.asReadonly();
 
   constructor() {
     // Call loadLanguages immediately to start loading data
@@ -77,10 +78,10 @@ export class LanguageFamilyService {
         current += char;
       }
     }
-    
+
     // Push the last field
     result.push(current);
-    
+
     return result;
   }
 
@@ -125,6 +126,15 @@ export class LanguageFamilyService {
   }
 
   /**
+   * Gets language entry by ID
+   */
+  getLanguage(iso639: string): LanguageEntry | null {
+    return this.iso639ToIdMap().has(iso639)
+      ? this.languageMap().get(this.iso639ToIdMap().get(iso639)!) || null
+      : null;
+  }
+
+  /**
    * Get ancestry chain from a language ID up to the root
    * Returns array of names from language up to top-level family
    */
@@ -150,26 +160,24 @@ export class LanguageFamilyService {
     let langCode = locale;
     try {
       langCode = new Intl.Locale(locale).language;
-    } catch {
-      // Use as-is if parsing fails
-    }
+    } catch {}
 
     // Use langs library to convert ISO 639-1 to ISO 639-3
     const langInfo = langs.where('1', langCode);
-    return langInfo?.['3'] || null;
+    const iso639_3 = langInfo?.['3'] || null;
+
+    if (!iso639_3 && langCode.length === 3) {
+      return langCode;
+    }
+    return iso639_3;
   }
 
   /**
    * Compare two languages and find their common ancestry
    */
-  compareFamilies(guessLocale: string, correctLocale: string): FamilyComparisonResult {
+  compareFamilies(guessLocale: string, correctLocale: string): FamilyComparisonResult | null {
     if (!this.loaded()) {
-      return {
-        commonAncestor: null,
-        distanceScore: 0,
-        guessAncestry: [],
-        correctAncestry: [],
-      };
+      return null;
     }
 
     // Convert locales to ISO 639-3
@@ -177,49 +185,24 @@ export class LanguageFamilyService {
     const correctIso = this.localeToIso639_3(correctLocale);
 
     if (!guessIso || !correctIso) {
-      return {
-        commonAncestor: null,
-        distanceScore: 0,
-        guessAncestry: [],
-        correctAncestry: [],
-      };
+      return null;
     }
 
     // Get language IDs from ISO codes, with fallback for macrolanguages
     const isoMap = this.iso639ToIdMap();
     let guessId = isoMap.get(guessIso);
     let correctId = isoMap.get(correctIso);
-    let usedFallback = false;
 
     // Try fallback codes if not found
     if (!guessId && ISO639_3_FALLBACKS[guessIso]) {
       guessId = isoMap.get(ISO639_3_FALLBACKS[guessIso]);
-      usedFallback = true;
     }
     if (!correctId && ISO639_3_FALLBACKS[correctIso]) {
       correctId = isoMap.get(ISO639_3_FALLBACKS[correctIso]);
-      usedFallback = true;
     }
 
     if (!guessId || !correctId) {
-      return {
-        commonAncestor: null,
-        distanceScore: 0,
-        guessAncestry: [],
-        correctAncestry: [],
-      };
-    }
-
-    // If both map to the same language via fallback but original codes differ,
-    // treat as 99% (same macrolanguage, different variety - like BASE_MATCH)
-    if (usedFallback && guessId === correctId && guessIso !== correctIso) {
-      const ancestry = this.getAncestry(guessId);
-      return {
-        commonAncestor: ancestry[0] || null,
-        distanceScore: 99,
-        guessAncestry: ancestry,
-        correctAncestry: ancestry,
-      };
+      return null;
     }
 
     // Get ancestry chains
@@ -244,7 +227,11 @@ export class LanguageFamilyService {
     // 100% = same language, 0% = no common ancestor
     let distanceScore = 0;
 
-    if (commonAncestor) {
+    if (guessLocale === correctLocale) {
+      distanceScore = 100; // Same language
+    } else if (guessId === correctId) {
+      distanceScore = 99; // Other region/variant of same language
+    } else if (commonAncestor) {
       const guessDepth = guessAncestry.indexOf(commonAncestor);
       const correctDepth = commonDepthInCorrect;
 
@@ -258,7 +245,7 @@ export class LanguageFamilyService {
         // Higher score when fewer steps (closer relationship)
         distanceScore = Math.round(((maxSteps - totalSteps) / maxSteps) * 100);
       } else {
-        distanceScore = 100; // Same language
+        distanceScore = 0;
       }
     }
 

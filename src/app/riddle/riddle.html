@@ -7,10 +7,10 @@
         gameStarted()
           ? 'opacity-50 cursor-not-allowed bg-black/5 border-black/10 text-text/60 dark:bg-white/5 dark:border-white/10 dark:text-text-inverse/60'
           : difficulty() === 'normal'
-          ? 'bg-success/10 border-success/30 text-success dark:text-success-bright'
-          : difficulty() === 'hard'
-          ? 'bg-warn/10 border-warn/30 text-warn dark:text-warn-bright'
-          : 'bg-accent/10 border-accent/30 text-accent dark:text-accent-bright'
+            ? 'bg-success/10 border-success/30 text-success dark:text-success-bright'
+            : difficulty() === 'hard'
+              ? 'bg-warn/10 border-warn/30 text-warn dark:text-warn-bright'
+              : 'bg-accent/10 border-accent/30 text-accent dark:text-accent-bright'
       "
       (click)="toggleDifficulty()"
       [disabled]="gameStarted()"
@@ -22,9 +22,9 @@
     >
       <span>{{ difficultyLabel() }}</span>
       @if (gameStarted()) {
-      <span class="text-xs opacity-70">🔒 Locked</span>
+        <span class="text-xs opacity-70">🔒 Locked</span>
       } @else {
-      <span class="text-xs opacity-70">{{ difficultyDescription() }}</span>
+        <span class="text-xs opacity-70">{{ difficultyDescription() }}</span>
       }
     </button>
   </div>
@@ -60,242 +60,272 @@
       <!-- Guess Input Section -->
       <div class="border-t border-black/10 dark:border-white/10 pt-5 mt-2">
         @if (gameStatus() === 'WON') {
-        <div
-          class="animate-in py-8 px-6 rounded-2xl text-center bg-success/10 text-success dark:text-success-bright"
-        >
-          <div class="text-5xl mb-4">🎉</div>
-          <h3 class="m-0 mb-2 text-2xl font-bold">Correct!</h3>
-          <p class="m-0 text-base">
-            You correctly identified <span class="font-bold">{{ displayLanguage() }}</span
-            >!
-          </p>
-          <div class="flex flex-col items-center gap-1 mt-4 text-base">
-            @for (emoji of historyEmojis(); track $index) {
-            <div>{{ emoji }}</div>
-            }
-          </div>
-          <div class="flex gap-3 justify-center mt-5">
-            <button
-              class="py-2 px-4 rounded-xl bg-success text-text-inverse font-medium transition-all hover:scale-105"
-              (click)="copy()"
-            >
-              {{ copyConfirmation() ? '✓ Copied!' : '📋 Copy' }}
-            </button>
-            @if (canShare) {
-            <button
-              class="py-2 px-4 rounded-xl bg-success text-text-inverse font-medium transition-all hover:scale-105"
-              (click)="share()"
-            >
-              📤 Share
-            </button>
-            }
-          </div>
-        </div>
-        } @else if (gameStatus() === 'LOST') {
-        <div
-          class="animate-in py-8 px-6 rounded-2xl text-center bg-warn/10 text-warn dark:text-warn-bright"
-        >
-          <div class="text-5xl mb-4">😢</div>
-          <h3 class="m-0 mb-2 text-2xl font-bold">Game Over</h3>
-          <p class="m-0 text-base">
-            The correct language was <span class="font-bold">{{ displayLanguage() }}</span
-            >.
-          </p>
-          <div class="flex flex-col items-center gap-1 mt-4 text-base">
-            @for (emoji of historyEmojis(); track $index) {
-            <div>{{ emoji }}</div>
-            }
-          </div>
-          <div class="flex gap-3 justify-center mt-5">
-            <button
-              class="py-2 px-4 rounded-xl bg-warn text-text-inverse font-medium transition-all hover:scale-105"
-              (click)="copy()"
-            >
-              {{ copyConfirmation() ? '✓ Copied!' : '📋 Copy' }}
-            </button>
-            @if (canShare) {
-            <button
-              class="py-2 px-4 rounded-xl bg-warn text-text-inverse font-medium transition-all hover:scale-105"
-              (click)="share()"
-            >
-              📤 Share
-            </button>
-            }
-          </div>
-        </div>
-        } @else {
-        <div>
-          <label class="block text-sm font-medium mb-3">Type your guess</label>
-          <div class="flex gap-3 relative">
-            <div class="flex-1 relative">
-              <input
-                type="text"
-                class="w-full py-3.5 px-4 text-base rounded-xl outline-none transition-all box-border border-2 border-black/10 dark:border-white/20 bg-white dark:bg-white/10 focus:border-solution"
-                [formControl]="guessControl"
-                (focus)="showDropdownHandler()"
-                (blur)="hideDropdownHandler()"
-                (input)="showDropdownHandler()"
-                (keydown.enter)="submitGuess()"
-                placeholder="e.g. French, Japanese..."
-              />
-
-              @if (showDropdown() && filteredLanguages().length > 0) {
-              <ul
-                class="absolute z-50 left-0 right-0 mt-2 rounded-xl shadow-2xl max-h-60 overflow-y-auto list-none py-2 m-0 bg-white dark:bg-surface-dark border border-black/10 dark:border-white/10"
-              >
-                @for (option of filteredLanguages(); track option.code) {
-                <li
-                  class="px-4 py-3 cursor-pointer text-base transition-colors hover:bg-solution/10"
-                  (mousedown)="$event.preventDefault(); selectLanguage(option)"
-                >
-                  {{ option.label }}
-                  <span class="text-xs ml-2 font-mono opacity-60">{{ option.code }}</span>
-                </li>
-                }
-              </ul>
+          <div
+            class="animate-in py-8 px-6 rounded-2xl text-center bg-success/10 text-success dark:text-success-bright"
+          >
+            <div class="text-5xl mb-4">🎉</div>
+            <h3 class="m-0 mb-2 text-2xl font-bold">Correct!</h3>
+            <p class="m-0 text-base">
+              You correctly identified <span class="font-bold">{{ displayLanguage() }}</span
+              >!
+            </p>
+            <div class="flex flex-col items-center gap-1 mt-4 text-base">
+              @for (emoji of historyEmojis(); track $index) {
+                <div>{{ emoji }}</div>
               }
             </div>
-            <button
-              class="py-3.5 px-6 text-base font-semibold rounded-xl cursor-pointer transition-all whitespace-nowrap bg-solution hover:bg-solution-bright text-text-inverse"
-              (click)="submitGuess()"
-            >
-              Guess
-            </button>
+            <div class="flex gap-3 justify-center mt-5">
+              <button
+                class="py-2 px-4 rounded-xl bg-success text-text-inverse font-medium transition-all hover:scale-105"
+                (click)="copy()"
+              >
+                {{ copyConfirmation() ? '✓ Copied!' : '📋 Copy' }}
+              </button>
+              @if (canShare) {
+                <button
+                  class="py-2 px-4 rounded-xl bg-success text-text-inverse font-medium transition-all hover:scale-105"
+                  (click)="share()"
+                >
+                  📤 Share
+                </button>
+              }
+            </div>
           </div>
-
-          <div class="flex justify-between items-center mt-3 text-sm">
-            <span class="text-text/60 dark:text-text-inverse/60">
-              @if (history().length > 0) { Guesses: {{ history().length }}/6 @if (showHints() &&
-              visibleHintsCount() < totalAvailableHints()) { · Hints: {{ visibleHintsCount() }}/{{
-                totalAvailableHints()
-              }}
-              } } @else if (!showHints()) { {{ difficultyLabel() }} mode }
-            </span>
-
-            @if (showHints() && visibleHintsCount() < totalAvailableHints()) {
-            <span class="font-medium text-accent dark:text-accent-bright">
-              @if (difficulty() === 'hard') { More hints available later } @else { Wrong guess
-              reveals the next hint }
-            </span>
-            }
+        } @else if (gameStatus() === 'LOST') {
+          <div
+            class="animate-in py-8 px-6 rounded-2xl text-center bg-warn/10 text-warn dark:text-warn-bright"
+          >
+            <div class="text-5xl mb-4">😢</div>
+            <h3 class="m-0 mb-2 text-2xl font-bold">Game Over</h3>
+            <p class="m-0 text-base">
+              The correct language was <span class="font-bold">{{ displayLanguage() }}</span
+              >.
+            </p>
+            <div class="flex flex-col items-center gap-1 mt-4 text-base">
+              @for (emoji of historyEmojis(); track $index) {
+                <div>{{ emoji }}</div>
+              }
+            </div>
+            <div class="flex gap-3 justify-center mt-5">
+              <button
+                class="py-2 px-4 rounded-xl bg-warn text-text-inverse font-medium transition-all hover:scale-105"
+                (click)="copy()"
+              >
+                {{ copyConfirmation() ? '✓ Copied!' : '📋 Copy' }}
+              </button>
+              @if (canShare) {
+                <button
+                  class="py-2 px-4 rounded-xl bg-warn text-text-inverse font-medium transition-all hover:scale-105"
+                  (click)="share()"
+                >
+                  📤 Share
+                </button>
+              }
+            </div>
           </div>
-        </div>
+        } @else {
+          <div>
+            <label class="block text-sm font-medium mb-3">Type your guess</label>
+            <div class="flex gap-3 relative">
+              <div class="flex-1 relative">
+                <input
+                  type="text"
+                  class="w-full py-3.5 px-4 text-base rounded-xl outline-none transition-all box-border border-2 border-black/10 dark:border-white/20 bg-white dark:bg-white/10 focus:border-solution"
+                  [formControl]="guessControl"
+                  (focus)="showDropdownHandler()"
+                  (blur)="hideDropdownHandler()"
+                  (input)="showDropdownHandler()"
+                  (keydown.enter)="submitGuess()"
+                  placeholder="e.g. French, Japanese..."
+                />
+
+                @if (showDropdown() && filteredLanguages().length > 0) {
+                  <ul
+                    class="absolute z-50 left-0 right-0 mt-2 rounded-xl shadow-2xl max-h-60 overflow-y-auto list-none py-2 m-0 bg-white dark:bg-surface-dark border border-black/10 dark:border-white/10"
+                  >
+                    @for (option of filteredLanguages(); track option.code) {
+                      <li
+                        class="px-4 py-3 cursor-pointer text-base transition-colors hover:bg-solution/10"
+                        (mousedown)="$event.preventDefault(); selectLanguage(option)"
+                      >
+                        {{ option.label }}
+                        <span class="text-xs ml-2 font-mono opacity-60">{{ option.code }}</span>
+                      </li>
+                    }
+                  </ul>
+                }
+              </div>
+              <button
+                class="py-3.5 px-6 text-base font-semibold rounded-xl cursor-pointer transition-all whitespace-nowrap bg-solution hover:bg-solution-bright text-text-inverse"
+                (click)="submitGuess()"
+              >
+                Guess
+              </button>
+            </div>
+
+            <div class="flex justify-between items-center mt-3 text-sm">
+              <span class="text-text/60 dark:text-text-inverse/60">
+                @if (history().length > 0) {
+                  Guesses: {{ history().length }}/6
+                  @if (showHints() && visibleHintsCount() < totalAvailableHints()) {
+                    · Hints: {{ visibleHintsCount() }}/{{ totalAvailableHints() }}
+                  }
+                } @else if (!showHints()) {
+                  {{ difficultyLabel() }} mode
+                }
+              </span>
+
+              @if (showHints() && visibleHintsCount() < totalAvailableHints()) {
+                <span class="font-medium text-accent dark:text-accent-bright">
+                  @if (difficulty() === 'hard') {
+                    More hints available later
+                  } @else {
+                    Wrong guess reveals the next hint
+                  }
+                </span>
+              }
+            </div>
+          </div>
         }
       </div>
 
       <!-- Feedback Message -->
       @if (feedbackMessage()) {
-      <div
-        class="animate-in flex flex-col gap-2 p-4 rounded-xl text-sm font-medium"
-        [class]="
-          feedbackMessage()?.type === 'error'
-            ? 'bg-warn/10 text-warn dark:text-warn-bright'
-            : 'bg-accent/10 text-accent dark:text-accent-bright'
-        "
-      >
-        <div class="flex items-center gap-3">
-          <span class="text-xl">
-            @if(feedbackMessage()?.type === 'error') { 🚫 } @if(feedbackMessage()?.type ===
-            'warning') { ⚠️ }
-          </span>
-          <span>{{ feedbackMessage()?.text }}</span>
-        </div>
-        @if (showAncestry() && feedbackMessage()?.familyComparison; as fc) {
-        <div class="mt-2 pt-2 border-t border-current/20 text-xs opacity-90">
-          @if (fc.commonAncestor) {
-          <div class="flex items-center gap-2 mb-1">
-            <span class="font-semibold">Common family:</span>
-            <span>{{ fc.commonAncestor }}</span>
+        <div
+          class="animate-in flex flex-col gap-2 p-4 rounded-xl text-sm font-medium"
+          [class]="
+            feedbackMessage()?.type === 'error'
+              ? 'bg-warn/10 text-warn dark:text-warn-bright'
+              : 'bg-accent/10 text-accent dark:text-accent-bright'
+          "
+        >
+          <div class="flex items-center gap-3">
+            <span class="text-xl">
+              @if (feedbackMessage()?.type === 'error') {
+                🚫
+              }
+              @if (feedbackMessage()?.type === 'warning') {
+                ⚠️
+              }
+            </span>
+            <span>{{ feedbackMessage()?.text }}</span>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="font-semibold">Similarity:</span>
-            <div class="flex-1 h-2 rounded-full bg-current/20 overflow-hidden max-w-32">
-              <div
-                class="h-full bg-current rounded-full transition-all"
-                [style.width.%]="fc.distanceScore"
-              ></div>
+          @if (showAncestry() && feedbackMessage()?.familyComparison; as fc) {
+            <div class="mt-2 pt-2 border-t border-current/20 text-xs opacity-90">
+              @if (fc.commonAncestor) {
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-semibold">Common family:</span>
+                  <span>{{ fc.commonAncestor }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold">Similarity:</span>
+                  <div class="flex-1 h-2 rounded-full bg-current/20 overflow-hidden max-w-32">
+                    <div
+                      class="h-full bg-current rounded-full transition-all"
+                      [style.width.%]="fc.distanceScore"
+                    ></div>
+                  </div>
+                  <span>{{ fc.distanceScore }}%</span>
+                </div>
+              } @else {
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-semibold">Root of your guess:</span>
+                  <span>{{ fc.guessAncestry.at(-1) }}</span>
+                </div>
+                @if (difficulty() === 'normal') {
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="font-semibold">Root of correct language:</span>
+                    <span>{{ fc.correctAncestry.at(-1) }}</span>
+                  </div>
+                }
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold">Similarity:</span>
+                  <div class="flex-1 h-2 rounded-full bg-current/20 overflow-hidden max-w-32">
+                    <div
+                      class="h-full bg-current rounded-full transition-all"
+                      [style.width.%]="fc.distanceScore"
+                    ></div>
+                  </div>
+                  <span>{{ fc.distanceScore }}%</span>
+                </div>
+              }
             </div>
-            <span>{{ fc.distanceScore }}%</span>
-          </div>
-          } @else {
-          <div class="flex items-center gap-2">
-            <span>🌍</span>
-            <span>Totally unrelated languages!</span>
-          </div>
           }
         </div>
-        }
-      </div>
-      } @if (showHints() && stage() >= 1) {
-      <h2 class="block font-medium mb-3">Hints:</h2>
+      }
+      @if (showHints() && stage() >= 1) {
+        <h2 class="block font-medium mb-3">Hints:</h2>
       }
 
       <!-- Stage 5: Hint Translation -->
       @if (showHintTranslation() && sample().hintEnglishTranslation) {
-      <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
-        <label
-          class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
-          >Hint Transcript Translation</label
-        >
-        <p dir="auto" class="p-4 rounded-xl m-0 bg-accent/10 text-accent dark:text-accent-bright">
-          "{{ sample().hintEnglishTranslation }}"
-        </p>
-      </div>
+        <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
+          <label
+            class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
+            >Hint Transcript Translation</label
+          >
+          <p dir="auto" class="p-4 rounded-xl m-0 bg-accent/10 text-accent dark:text-accent-bright">
+            "{{ sample().hintEnglishTranslation }}"
+          </p>
+        </div>
       }
 
       <!-- Stage 4: Text Hint -->
       @if (showHintText()) {
-      <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
-        <label
-          class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
-          >Hint Transcript</label
-        >
-        <p
-          dir="auto"
-          class="p-5 rounded-xl border-l-4 border-solution bg-white dark:bg-white/5 leading-relaxed"
-        >
-          {{ sample().hint }}
-        </p>
-      </div>
+        <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
+          <label
+            class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
+            >Hint Transcript</label
+          >
+          <p
+            dir="auto"
+            class="p-5 rounded-xl border-l-4 border-solution bg-white dark:bg-white/5 leading-relaxed"
+          >
+            {{ sample().hint }}
+          </p>
+        </div>
       }
 
       <!-- Stage 3: Audio Hint -->
       @if (showHintAudio()) {
-      <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
-        <label
-          class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
-          >Hint (includes information about the country)</label
-        >
-        <audio controls [src]="sample().audioHintUrl" class="w-full rounded-lg"></audio>
-      </div>
+        <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
+          <label
+            class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
+            >Hint (includes information about the country)</label
+          >
+          <audio controls [src]="sample().audioHintUrl" class="w-full rounded-lg"></audio>
+        </div>
       }
 
       <!-- Transcript -->
       @if (showTranscript()) {
-      <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
-        <label
-          class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
-          >Transcript</label
-        >
-        <div
-          dir="auto"
-          class="p-5 rounded-xl border-l-4 border-solution bg-white dark:bg-white/5 text-lg leading-relaxed"
-          [innerHTML]="highlightedText()"
-        ></div>
-      </div>
+        <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
+          <label
+            class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
+            >Transcript</label
+          >
+          <div
+            dir="auto"
+            class="p-5 rounded-xl border-l-4 border-solution bg-white dark:bg-white/5 text-lg leading-relaxed"
+            [innerHTML]="highlightedText()"
+          ></div>
+        </div>
       }
 
       <!-- Transcript Translation -->
       @if (showTranscriptTranslation()) {
-      <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
-        <label
-          class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
-          >English Translation of Transcript</label
-        >
-        <div dir="auto" class="p-4 rounded-xl m-0 bg-accent/10 text-accent dark:text-accent-bright">
-          "{{ sample().englishTranslation }}"
+        <div class="animate-in p-4 rounded-xl bg-black/3 dark:bg-white/5">
+          <label
+            class="block text-xs font-bold uppercase tracking-widest mb-3 text-guess dark:text-guess-bright"
+            >English Translation of Transcript</label
+          >
+          <div
+            dir="auto"
+            class="p-4 rounded-xl m-0 bg-accent/10 text-accent dark:text-accent-bright"
+          >
+            "{{ sample().englishTranslation }}"
+          </div>
         </div>
-      </div>
       }
     </div>
   </div>
