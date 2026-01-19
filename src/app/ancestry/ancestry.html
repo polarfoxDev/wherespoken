@@ -23,7 +23,7 @@
           <span class="font-semibold">Root of your guess:</span>
           <span>{{ familyComparisonResult()!.guessAncestry.at(-1) }}</span>
         </div>
-        @if (difficulty() === 'normal') {
+        @if (shouldShowCorrectRoot()) {
           <div class="flex items-center gap-2 mb-1">
             <span class="font-semibold">Root of correct language:</span>
             <span>{{ familyComparisonResult()!.correctAncestry.at(-1) }}</span>
@@ -116,7 +116,7 @@
                       <span class="tree-branch">→</span>
                     }
                     <span [class.font-bold]="isLast">
-                      {{ isFirst && !familyComparisonResult()!.commonAncestor ? ancestor : '•••' }}
+                      {{ isFirst && !familyComparisonResult()!.commonAncestor && shouldShowCorrectRoot() ? ancestor : '•••' }}
                     </span>
                   </div>
                 }
