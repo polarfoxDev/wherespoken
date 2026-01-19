@@ -11,6 +11,8 @@ export class Ancestry {
   familyComparisonResult = input<FamilyComparisonResult>();
   difficulty = input<string>();
   guessLabel = input<string>();
+  /** Number of guesses made so far (history length) */
+  guessNumber = input<number>(0);
 
   expanded = signal(false);
 
@@ -77,6 +79,23 @@ export class Ancestry {
       this.correctOnlyPath().length === 0 &&
       result.distanceScore < 100
     );
+  });
+
+  /**
+   * Whether to show the correct language family root.
+   * In normal difficulty, only show after the 2nd guess (i.e., from 3rd guess onwards)
+   */
+  shouldShowCorrectRoot = computed(() => {
+    const difficulty = this.difficulty();
+    const guessNumber = this.guessNumber();
+    
+    // In normal difficulty, hide correct root for first 2 guesses
+    if (difficulty === 'normal') {
+      return guessNumber >= 3;
+    }
+    
+    // For other difficulties, follow existing behavior (never show in hard/extreme)
+    return false;
   });
 
   toggleExpanded(): void {
