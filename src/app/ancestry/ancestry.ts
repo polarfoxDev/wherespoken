@@ -89,7 +89,7 @@ export class Ancestry {
     const difficulty = this.difficulty();
     const guessNumber = this.guessNumber();
     
-    // In normal difficulty, hide correct root for first 2 guesses
+    // In normal difficulty, show correct root from 3rd guess onwards
     if (difficulty === 'normal') {
       return guessNumber >= 3;
     }
