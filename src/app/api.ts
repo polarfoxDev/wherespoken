@@ -3,13 +3,24 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Schedule } from './types/schedule';
 import { environment } from '../environments/environment';
 import { ExtendedSampleMetadata, SampleMetadata } from './types/sampleMetadata';
-import { catchError, of } from 'rxjs';
+import { catchError, of, switchMap, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class Api {
-  http = inject(HttpClient);
+  private http = inject(HttpClient);
+  private activeEndpoint = signal(environment.s3Endpoint);
+
+  private fetchWithFallback<T>(path: string) {
+    return this.http.get<T>(environment.s3Endpoint + path).pipe(
+      catchError(() => {
+        console.warn(`Primary endpoint failed, trying fallback for: ${path}`);
+        this.activeEndpoint.set(environment.s3EndpointFallback);
+        return this.http.get<T>(environment.s3EndpointFallback + path);
+      }),
+    );
+  }
 
   // Schedule
   private scheduleSignal = signal<Schedule>({});
@@ -26,14 +37,13 @@ export class Api {
   loadSchedule(): void {
     this.scheduleLoading.set(true);
     this.scheduleError.set(null);
-    this.http
-      .get<Schedule>(environment.s3Endpoint + 'schedule.json')
+    this.fetchWithFallback<Schedule>('schedule.json')
       .pipe(
         catchError((err) => {
           this.scheduleError.set('Failed to load schedule. Please try again later.');
           console.error('Schedule load error:', err);
           return of({} as Schedule);
-        })
+        }),
       )
       .subscribe((data) => {
         this.scheduleSignal.set(data);
@@ -46,23 +56,23 @@ export class Api {
     this.sampleLoading.set(true);
     this.sampleError.set(null);
     this.sampleSignal.set(null);
-    this.http
-      .get<SampleMetadata>(environment.s3Endpoint + `${sampleId}/metadata.json`)
+    this.fetchWithFallback<SampleMetadata>(`${sampleId}/metadata.json`)
       .pipe(
         catchError((err) => {
           this.sampleError.set('Failed to load puzzle. Please try again later.');
           this.sampleLoading.set(false);
           console.error('Sample load error:', err);
           return of(null);
-        })
+        }),
       )
       .subscribe((data) => {
         if (data) {
+          const endpoint = this.activeEndpoint();
           this.sampleSignal.set({
             ...data,
             sampleId,
-            audioUrl: environment.s3Endpoint + `${sampleId}/sample.mp3`,
-            audioHintUrl: environment.s3Endpoint + `${sampleId}/hint.mp3`,
+            audioUrl: endpoint + `${sampleId}/sample.mp3`,
+            audioHintUrl: endpoint + `${sampleId}/hint.mp3`,
           });
         }
         this.sampleLoading.set(false);
