@@ -220,6 +220,13 @@ export class Riddle {
                   label.slice(0, secondParenIndex) +
                   label.slice(label.indexOf(')', secondParenIndex) + 1);
               }
+            } else if (label === code) {
+              // If no better label found, try langs library
+              const name =
+                langs.where(code.length === 2 ? '1' : '3', new Intl.Locale(code).language)?.name ||
+                this.languageFamilyService.getLanguage(new Intl.Locale(code).language)?.name ||
+                code;
+              label = name;
             }
             return { code, label };
           }),
@@ -259,8 +266,7 @@ export class Riddle {
   displayLanguage = computed(() => {
     try {
       const code = this.sample().language;
-      const name = new Intl.DisplayNames(['en'], { type: 'language' }).of(code);
-      return name || code;
+      return this.availableLocales().find((l) => l.code === code)?.label || code;
     } catch {
       return this.sample().language;
     }
