@@ -87,9 +87,15 @@ export class LanguageFamilyService {
 
   private async loadLanguages(): Promise<void> {
     try {
-      const response = await fetch('/languages.csv');
-      const text = await response.text();
-      const lines = text.trim().split('\n');
+      const responseMain = await fetch('/languages.csv');
+      const text = await responseMain.text();
+
+      const responseConlang = await fetch('/conlangs.csv');
+      const conlangText = await responseConlang.text();
+
+      const combinedText = text + '\n' + conlangText;
+
+      const lines = combinedText.trim().split('\n');
 
       const langMap = new Map<string, LanguageEntry>();
       const isoMap = new Map<string, string>();

@@ -1,4 +1,23 @@
-export const LOCALE_CODES = [
+const CONLANG_LOCALE_CODES = [
+  'hvl-VP', // High Valyrian (Valyrian Peninsula)
+  'dki-EO', // Dothraki (Essos)
+  'lhz-EO', // Lhazareen (Essos)
+  'vyb-EO', // Braavosi Valyrian (Essos)
+  'vyl-EO', // Lorathi Valyrian (Essos)
+  'vyp-EO', // Penthoshi Valyrian (Essos)
+  'vyn-EO', // Norvoshi Valyrian (Essos)
+  'vyq-EO', // Qohorik Valyrian (Essos)
+  'vyo-EO', // Volantene Valyrian (Essos)
+  'vys-EO', // Lysene Valyrian (Essos)
+  'vym-EO', // Myrish Valyrian (Essos)
+  'vyt-EO', // Tyroshi Valyrian (Essos)
+  'vyg-EO', // Ghiscari Valyrian (Essos),
+  'nvi-PD', // Na'vi (Pandora),
+  'tlh', // Klingon,
+  'sjn', // Sindarin,
+];
+
+const LANG_LOCALE_CODES = [
   'af-ZA',
   'am-ET',
   'ar-EG',
@@ -136,3 +155,5 @@ export const LOCALE_CODES = [
   'zh-TW',
   'zu-ZA',
 ];
+
+export const LOCALE_CODES = [...LANG_LOCALE_CODES, ...CONLANG_LOCALE_CODES];
