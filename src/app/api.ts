@@ -12,12 +12,13 @@ export class Api {
   private http = inject(HttpClient);
   private activeEndpoint = signal(environment.s3Endpoint);
 
-  private fetchWithFallback<T>(path: string) {
-    return this.http.get<T>(environment.s3Endpoint + path).pipe(
+  private fetchWithFallback<T>(path: string, queryParams?: string) {
+    const fullPath = queryParams ? `${path}?${queryParams}` : path;
+    return this.http.get<T>(environment.s3Endpoint + fullPath).pipe(
       catchError(() => {
         console.warn(`Primary endpoint failed, trying fallback for: ${path}`);
         this.activeEndpoint.set(environment.s3EndpointFallback);
-        return this.http.get<T>(environment.s3EndpointFallback + path);
+        return this.http.get<T>(environment.s3EndpointFallback + fullPath);
       }),
     );
   }
@@ -37,7 +38,11 @@ export class Api {
   loadSchedule(): void {
     this.scheduleLoading.set(true);
     this.scheduleError.set(null);
-    this.fetchWithFallback<Schedule>('schedule.json')
+    // Add cache-busting parameter based on current date (YYYYMMDD format)
+    // This ensures the schedule is cached for at most one day
+    const today = new Date();
+    const cacheBuster = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
+    this.fetchWithFallback<Schedule>('schedule.json', `d=${cacheBuster}`)
       .pipe(
         catchError((err) => {
           this.scheduleError.set('Failed to load schedule. Please try again later.');
