@@ -16,7 +16,7 @@ export class Api {
     const fullPath = queryParams ? `${path}?${queryParams}` : path;
     return this.http.get<T>(environment.s3Endpoint + fullPath).pipe(
       catchError(() => {
-        console.warn(`Primary endpoint failed, trying fallback for: ${path}`);
+        console.warn(`Primary endpoint failed, trying fallback for: ${fullPath}`);
         this.activeEndpoint.set(environment.s3EndpointFallback);
         return this.http.get<T>(environment.s3EndpointFallback + fullPath);
       }),
