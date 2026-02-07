@@ -90,7 +90,3 @@ The app is containerized and deployed via GitHub Actions. On push to `main`:
 
 1. Docker images are built and tagged with version from `package.json`
 2. Images are pushed to GitHub Container Registry (ghcr.io)
-
-## 📝 License
-
-Private project by [polarnight.eu](https://polarnight.eu)
