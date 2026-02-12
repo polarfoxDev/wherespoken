@@ -2,17 +2,8 @@ ID,Name,ISO639P3code,Level,Parent_ID
 valy00,Valyrian,,family,arti1236
 valy01,High Valyrian (Valyrian Peninsula),hvl,language,valy00
 valy02,Low Valyrian,,family,valy00
-valy03,Northern Low Valyrian,,family,valy02
-valy04,Braavosi Valyrian (Essos),vyb,language,valy03
-valy05,Lorathi Valyrian (Essos),vyl,language,valy03
-valy06,Penthoshi Valyrian (Essos),vyp,language,valy03
-valy07,Norvoshi Valyrian (Essos),vyn,language,valy03
-valy08,Qohorik Valyrian (Essos),vyq,language,valy03
-valy09,Southern Low Valyrian,,family,valy02
-valy10,Volantene Valyrian (Essos),vyo,language,valy09
-valy11,Lysene Valyrian (Essos),vys,language,valy09
-valy12,Myrish Valyrian (Essos),vym,language,valy09
-valy13,Tyroshi Valyrian (Essos),vyt,language,valy09
+valy03,Northern Low Valyrian (Essos),vyn,language,valy02
+valy09,Southern Low Valyrian (Essos),vys,language,valy02
 valy14,Ghiscari Valyrian (Essos),vyg,language,valy02
 doth,Dothraki (Essos),dki,language,arti1236
 lhaz1,Lhazareen (Essos),lhz,language,arti1236

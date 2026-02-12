@@ -4,7 +4,7 @@ export interface ExtendedSampleMetadata extends SampleMetadata {
   audioHintUrl: string;
 }
 
-export interface SampleMetadata {
+interface SampleMetadata {
   language: string; // e.g. "en-US"
   voice: string;
   text: string;

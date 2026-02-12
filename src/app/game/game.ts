@@ -23,9 +23,7 @@ export class Game {
   api = inject(Api);
   date = input<string>();
 
-  private sampleId = computed(() => {
-    const schedule = this.api.schedule();
-    if (Object.keys(schedule).length === 0) return null;
+  dateISO = computed(() => {
     const dateISO = this.date() ?? new Date().toISOString().split('T')[0];
 
     // In production, prevent loading future dates
@@ -36,17 +34,14 @@ export class Game {
       }
     }
 
-    return schedule[dateISO] ?? null;
+    return dateISO ?? null;
   });
 
   constructor() {
-    this.api.loadSchedule();
     effect(() => {
-      const id = this.sampleId();
-      if (id) {
-        untracked(() => this.api.loadSample(id));
-      } else if (Object.keys(this.api.schedule()).length > 0) {
-        untracked(() => this.api.setNoSampleError());
+      const dateISO = this.dateISO();
+      if (dateISO) {
+        untracked(() => this.api.loadSampleForDate(new Date(dateISO)));
       }
     });
   }

@@ -2,19 +2,12 @@ const CONLANG_LOCALE_CODES = [
   'hvl-VP', // High Valyrian (Valyrian Peninsula)
   'dki-EO', // Dothraki (Essos)
   'lhz-EO', // Lhazareen (Essos)
-  'vyb-EO', // Braavosi Valyrian (Essos)
-  'vyl-EO', // Lorathi Valyrian (Essos)
-  'vyp-EO', // Penthoshi Valyrian (Essos)
-  'vyn-EO', // Norvoshi Valyrian (Essos)
-  'vyq-EO', // Qohorik Valyrian (Essos)
-  'vyo-EO', // Volantene Valyrian (Essos)
-  'vys-EO', // Lysene Valyrian (Essos)
-  'vym-EO', // Myrish Valyrian (Essos)
-  'vyt-EO', // Tyroshi Valyrian (Essos)
-  'vyg-EO', // Ghiscari Valyrian (Essos),
-  'nvi-PD', // Na'vi (Pandora),
-  'tlh', // Klingon,
-  'sjn', // Sindarin,
+  'vyn-EO', // Northern Low Valyrian (Essos)
+  'vys-EO', // Southern Low Valyrian (Essos)
+  'vyg-EO', // Ghiscari Valyrian (Essos)
+  'nvi-PD', // Na'vi (Pandora)
+  'tlh', // Klingon
+  'sjn', // Sindarin
 ];
 
 const LANG_LOCALE_CODES = [
