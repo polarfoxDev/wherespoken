@@ -1,0 +1,39 @@
+name: docker
+
+on:
+  push:
+    branches: ['main', 'develop']
+
+jobs:
+  publish:
+    name: publish image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v3
+      - name: lowercase github.repository
+        run: |
+          echo "IMAGE_NAME=`echo ${{github.repository}} | tr '[:upper:]' '[:lower:]'`" >>${GITHUB_ENV}
+      - name: determine version
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "PACKAGE_VERSION=$(jq -r .version package.json)" >>${GITHUB_ENV}
+      - name: docker login
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: build and publish image
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            docker build . \
+              --build-arg NG_CONFIG=production \
+              --tag ghcr.io/${{ env.IMAGE_NAME }}:latest \
+              --tag ghcr.io/${{ env.IMAGE_NAME }}:${{ env.PACKAGE_VERSION }} \
+              --tag ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          else
+            docker build . \
+              --build-arg NG_CONFIG=staging \
+              --tag ghcr.io/${{ env.IMAGE_NAME }}:staging \
+              --tag ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          fi
+          docker push ghcr.io/${{ env.IMAGE_NAME }} --all-tags
