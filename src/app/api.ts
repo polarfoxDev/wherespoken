@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '../environments/environment';
 import { ExtendedSampleMetadata } from './types/sampleMetadata';
+import { normalizeLocale } from './types/languages';
 import { catchError, of} from 'rxjs';
 
 const RIDDLE_CACHE_KEY = 'wherespoken-riddle-cache';
@@ -56,6 +57,7 @@ export class Api {
     // Check cache first
     const cachedRiddle = this.getCachedRiddle(dateISO);
     if (cachedRiddle) {
+      cachedRiddle.language = normalizeLocale(cachedRiddle.language);
       this.sampleSignal.set(cachedRiddle);
       this.sampleLoading.set(false);
       return;
@@ -73,6 +75,7 @@ export class Api {
       )
       .subscribe((data) => {
         if (data) {
+          data.language = normalizeLocale(data.language);
           this.sampleSignal.set(data);
           this.setCachedRiddle(dateISO, data);
         }

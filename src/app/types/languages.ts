@@ -22,6 +22,7 @@ const LANG_LOCALE_CODES = [
   'bg-BG',
   'bm-ML',
   'bn-BD',
+  'bn-IN',
   'bo-CN',
   'br-FR',
   'bs-BA',
@@ -37,6 +38,8 @@ const LANG_LOCALE_CODES = [
   'el-GR',
   'en-AU',
   'en-GB',
+  'en-IN',
+  'en-NG',
   'en-US',
   'eo',
   'es-AR',
@@ -69,6 +72,7 @@ const LANG_LOCALE_CODES = [
   'id-ID',
   'ig-NG',
   'is-IS',
+  'iu-CA',
   'it-IT',
   'ja-JP',
   'jv-ID',
@@ -128,6 +132,8 @@ const LANG_LOCALE_CODES = [
   'sw-KE',
   'sw-TZ',
   'ta-IN',
+  'ta-MY',
+  'ta-SG',
   'te-IN',
   'tg-TJ',
   'th-TH',
@@ -137,6 +143,7 @@ const LANG_LOCALE_CODES = [
   'tt-RU',
   'ug-CN',
   'uk-UA',
+  'ur-IN',
   'ur-PK',
   'uz-UZ',
   'vi-VN',
@@ -144,9 +151,25 @@ const LANG_LOCALE_CODES = [
   'xh-ZA',
   'yi',
   'yo-NG',
+  'yue-CN',
   'zh-CN',
   'zh-TW',
   'zu-ZA',
 ];
 
 export const LOCALE_CODES = [...LANG_LOCALE_CODES, ...CONLANG_LOCALE_CODES];
+
+/**
+ * Maps non-canonical locale codes to their canonical equivalents already
+ * present in LOCALE_CODES. Applied when ingesting data from the API so
+ * that the rest of the app only ever sees canonical codes.
+ */
+const LOCALE_ALIASES: Record<string, string> = {
+  'nb-NO': 'no-NO', // Norwegian Bokmål → Norwegian
+  'fil-PH': 'tl-PH', // Filipino → Tagalog
+};
+
+/** Normalise a locale code coming from external data (e.g. API metadata). */
+export function normalizeLocale(code: string): string {
+  return LOCALE_ALIASES[code] ?? code;
+}
