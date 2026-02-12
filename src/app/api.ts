@@ -1,9 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { Schedule } from './types/schedule';
 import { environment } from '../environments/environment';
-import { ExtendedSampleMetadata, SampleMetadata } from './types/sampleMetadata';
-import { catchError, Observable, of, switchMap, throwError } from 'rxjs';
+import { ExtendedSampleMetadata } from './types/sampleMetadata';
+import { catchError, of} from 'rxjs';
+
+const RIDDLE_CACHE_KEY = 'wherespoken-riddle-cache';
+
+interface RiddleCache {
+  [dateISO: string]: ExtendedSampleMetadata;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -17,11 +22,47 @@ export class Api {
   sampleLoading = signal(false);
   sampleError = signal<string | null>(null);
 
+  private getCachedRiddle(dateISO: string): ExtendedSampleMetadata | null {
+    try {
+      const cached = localStorage.getItem(RIDDLE_CACHE_KEY);
+      if (cached) {
+        const cache: RiddleCache = JSON.parse(cached);
+        return cache[dateISO] ?? null;
+      }
+    } catch {
+      // Ignore cache errors
+    }
+    return null;
+  }
+
+  private setCachedRiddle(dateISO: string, riddle: ExtendedSampleMetadata): void {
+    try {
+      const cached = localStorage.getItem(RIDDLE_CACHE_KEY);
+      const cache: RiddleCache = cached ? JSON.parse(cached) : {};
+      cache[dateISO] = riddle;
+      localStorage.setItem(RIDDLE_CACHE_KEY, JSON.stringify(cache));
+    } catch {
+      // Ignore cache errors
+    }
+  }
+
   loadSampleForDate(date: Date): void {
     this.sampleLoading.set(true);
     this.sampleError.set(null);
     this.sampleSignal.set(null);
-    this.http.get<ExtendedSampleMetadata>(`${environment.middlewareUrl}/${date.toISOString().split('T')[0]}`)
+
+    const dateISO = date.toISOString().split('T')[0];
+
+    // Check cache first
+    const cachedRiddle = this.getCachedRiddle(dateISO);
+    if (cachedRiddle) {
+      this.sampleSignal.set(cachedRiddle);
+      this.sampleLoading.set(false);
+      return;
+    }
+
+    // Fetch from API if not cached
+    this.http.get<ExtendedSampleMetadata>(`${environment.middlewareUrl}/${dateISO}`)
       .pipe(
         catchError((err) => {
           this.sampleError.set('Failed to load puzzle. Please try again later.');
@@ -33,6 +74,7 @@ export class Api {
       .subscribe((data) => {
         if (data) {
           this.sampleSignal.set(data);
+          this.setCachedRiddle(dateISO, data);
         }
         this.sampleLoading.set(false);
       });
