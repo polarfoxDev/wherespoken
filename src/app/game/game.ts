@@ -23,7 +23,7 @@ export class Game {
   api = inject(Api);
   date = input<string>();
 
-  private dateISO = computed(() => {
+  dateISO = computed(() => {
     const dateISO = this.date() ?? new Date().toISOString().split('T')[0];
 
     // In production, prevent loading future dates
