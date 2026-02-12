@@ -9,7 +9,7 @@ COPY pnpm-lock.yaml .
 RUN pnpm install --frozen-lockfile
 COPY . .
 ARG NG_CONFIG=production
-RUN pnpm run build -- --configuration $NG_CONFIG
+RUN pnpm run build --configuration $NG_CONFIG
 
 FROM nginx:alpine
 COPY --from=0 /app/dist/wherespoken/browser/ /usr/share/nginx/html
